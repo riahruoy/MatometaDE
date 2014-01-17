@@ -42,14 +42,14 @@ import android.util.Log;
 public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 	private int offset;
 	private int length;
-	private String uid;
+	private String uuid;
 	private String resultBody = "";
 	private int resultStatus = 0;
 	private UploadEventListener uploadEventListener;
-	public GetItemAsyncTask(Context context, String uid, int offset, int length, UploadEventListener listener) {
+	public GetItemAsyncTask(Context context, String uuid, int offset, int length, UploadEventListener listener) {
 	    this.offset = offset;
 	    this.length = length;
-	    this.uid = uid;
+	    this.uuid = uuid;
 	    this.uploadEventListener = listener;
 	  }
 	  
@@ -81,7 +81,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 			}
 				    	  
 		};
-		param.add(new BasicNameValuePair("uid", uid));
+		param.add(new BasicNameValuePair("uuid", uuid));
 		param.add(new BasicNameValuePair("offset", String.valueOf(offset)));
 		param.add(new BasicNameValuePair("length", String.valueOf(length)));
 		try {

@@ -67,7 +67,14 @@ public class WebActivity extends Activity {
     	if (keyCode == KeyEvent.KEYCODE_BACK) {
     		if (webView.canGoBack()) {
     			webView.goBack();
+    			if (!webView.canGoBack()) {
+//	    			Toast.makeText(WebActivity.this, "start", Toast.LENGTH_SHORT).show();
+    				time.start();
+    			} else {
+    				
+    			}
     		} else {
+//    			Toast.makeText(WebActivity.this, "upload", Toast.LENGTH_SHORT).show();
     			time.stop();
     		    Intent intent = new Intent(this, LogUploader.class);
     		    intent.putExtra("url", "http://matome.iijuf.net/_api.timeUploader.php");
@@ -84,9 +91,14 @@ public class WebActivity extends Activity {
     	@Override
     	public void onPageStarted(WebView view, String url, Bitmap favicon) {
     		super.onPageStarted(view, url, favicon);
-    		if (!url.contains(linkUrl)) {
-    			//support page2
+    		if (!url.contains(linkUrl) && !url.contains(".jpg")) {
+
     			time.stop();
+//    			Toast.makeText(WebActivity.this, "stop", Toast.LENGTH_SHORT).show();
+    		} else {
+    			//support page2 or picture
+    			time.start();
+//    			Toast.makeText(WebActivity.this, "start", Toast.LENGTH_SHORT).show();
     		}
     	}
     }
