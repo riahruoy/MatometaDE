@@ -63,6 +63,7 @@ public class LatestItem extends Activity {
 					long id) {
 
 				data.get(position).read = true;
+				listView.invalidateViews();
 				Item item = (Item)listView.getItemAtPosition(position);
 				Intent intent = new Intent(LatestItem.this, WebActivity.class);
 				intent.putExtra("title", item.title);
@@ -123,13 +124,6 @@ public class LatestItem extends Activity {
     	mGetItemTask.execute("");
     }
 
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.latest_item, menu);
-        return true;
-    }
     
     private static class Item {
     	public int id = -1;

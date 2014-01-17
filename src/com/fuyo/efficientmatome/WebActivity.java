@@ -5,9 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -101,5 +105,25 @@ public class WebActivity extends Activity {
 //    			Toast.makeText(WebActivity.this, "start", Toast.LENGTH_SHORT).show();
     		}
     	}
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.webactivity_item, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+    	case R.id.action_toWeb:
+    		Uri uri = Uri.parse(linkUrl);
+    		Intent i = new Intent(Intent.ACTION_VIEW,uri);
+    		startActivity(i);
+    		return true;
+    	}
+    	return false;
     }
 }
