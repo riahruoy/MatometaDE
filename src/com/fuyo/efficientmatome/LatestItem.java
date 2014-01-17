@@ -2,12 +2,16 @@ package com.fuyo.efficientmatome;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.text.Html;
 import android.view.Menu;
 import android.view.TextureView;
@@ -26,15 +30,26 @@ public class LatestItem extends Activity {
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
 	protected GetItemAsyncTask mGetItemTask = null;
-	protected String mUid = "testUID";
+	protected String uuid = "testUID";
+	static final String KEY_UUID = "uuid";
 	List<Item> data = new ArrayList<Item>();
 	protected OnScrollListener scrollListener;
+	protected SharedPreferences sharedPref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);
         mFooter = getLayoutInflater().inflate(R.layout.listview_footer, null);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPref.contains(KEY_UUID)) {
+        	uuid = UUID.randomUUID().toString();
+        	Editor e = sharedPref.edit();
+        	e.putString(KEY_UUID, uuid);
+        	e.commit();
+        }
+        
+        
         listView.addFooterView(mFooter);
         adapter = new ItemAdapter();
         listView.setAdapter(adapter);
@@ -42,10 +57,17 @@ public class LatestItem extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
+    		    Intent intentLog = new Intent(LatestItem.this, LogUploader.class);
+    		    intentLog.putExtra("url", "http://matome.iijuf.net/_api.readUploader.php");
+    		    intentLog.putExtra("paramKeys", new String[]{"uuid", "articleId"});
+    		    intentLog.putExtra("paramValues", new String[] {uuid, Integer.toString(1)});
+    		    startService(intentLog);
+
 				Item item = (Item)listView.getItemAtPosition(position);
 				Intent intent = new Intent(LatestItem.this, WebActivity.class);
 				intent.putExtra("title", item.title);
 				intent.putExtra("url", item.link);
+				intent.putExtra("articleId", item.id);
 				startActivity(intent);
 			}
 		});
@@ -71,7 +93,7 @@ public class LatestItem extends Activity {
     		return;
     	}
     	int offset = data.size();
-    	mGetItemTask = new GetItemAsyncTask(this, mUid, offset, 200, new GetItemAsyncTask.UploadEventListener() {
+    	mGetItemTask = new GetItemAsyncTask(this, uuid, offset, 200, new GetItemAsyncTask.UploadEventListener() {
 			
 			@Override
 			public void onSuccess(String body) {
@@ -109,6 +131,7 @@ public class LatestItem extends Activity {
     }
     
     private static class Item {
+    	public String id = "";
     	public String title = "";
     	public String link = "";
     	public String date = "";
@@ -118,10 +141,11 @@ public class LatestItem extends Activity {
     	public static Item getFromLine(String line) {
     		Item item = new Item();
     		String[] column = line.split("\t");
-    		item.title = Html.fromHtml(column[0]).toString();
-    		item.link = column[1];
-    		item.date = column[2];
-    		item.site = column[3];
+    		item.id = column[0];
+    		item.title = Html.fromHtml(column[1]).toString();
+    		item.link = column[2];
+    		item.date = column[3];
+    		item.site = column[4];
     		return item;
     	}
     }
