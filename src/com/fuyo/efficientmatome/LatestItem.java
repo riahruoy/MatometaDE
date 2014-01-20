@@ -26,13 +26,15 @@ import android.view.ViewGroup;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class LatestItem extends Activity implements TabListener {
+public class LatestItem extends Activity implements ActionBar.OnNavigationListener{
 	protected ListView listView = null;
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
@@ -46,6 +48,7 @@ public class LatestItem extends Activity implements TabListener {
 	private static final int TYPE_UNREAD = 1;
 	private static final int TYPE_READ = 2;
 	private int getItemType = TYPE_ALL;
+	SpinnerAdapter mSpinnerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,11 +99,9 @@ public class LatestItem extends Activity implements TabListener {
 		};
         listView.setOnScrollListener(scrollListener);
         final ActionBar bar = getActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        bar.addTab(bar.newTab().setText(R.string.tab_all).setTabListener(this));
-        bar.addTab(bar.newTab().setText(R.string.tab_unread).setTabListener(this));
-//        bar.addTab(bar.newTab().setText(R.string.tab_read).setTabListener(this));
-        
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
+        bar.setListNavigationCallbacks(mSpinnerAdapter, this);
     }
 
     
@@ -217,37 +218,28 @@ public class LatestItem extends Activity implements TabListener {
     	
     }
 
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		reloadDataSet();
-	}
-
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		Resources res = getResources();
-		final String tab_all = res.getString(R.string.tab_all);
-		final String tab_unread = res.getString(R.string.tab_unread);
-		final String tab_read = res.getString(R.string.tab_read);
-		if (tab_all.contentEquals(tab.getText())) {
-			getItemType = TYPE_ALL;
-		} else if (tab_unread.contentEquals(tab.getText())) {
-			getItemType = TYPE_UNREAD;
-		} else if (tab_read.contentEquals(tab.getText())) {
-			getItemType = TYPE_READ;
-		}
-		reloadDataSet();
-	}
-
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
 	private void reloadDataSet() {
 		data.clear();
 		adapter.notifyDataSetChanged();
 		listView.invalidateViews();
+	}
+
+
+	@Override
+	public boolean onNavigationItemSelected(int position, long itemId) {
+		//0: all, 1: unread, 2:read
+		switch (position) {
+		case 0:
+			getItemType = TYPE_ALL;
+			break;
+		case 1:
+			getItemType = TYPE_UNREAD;
+			break;
+		case 2:
+			getItemType = TYPE_READ;
+			break;
+		}
+		reloadDataSet();
+		return true;
 	}
 }
