@@ -8,10 +8,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.R.integer;
+import android.app.ActionBar;
+import android.app.ActionBar.Tab;
+import android.app.ActionBar.TabListener;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.Html;
 import android.view.Menu;
@@ -27,7 +32,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class LatestItem extends Activity {
+public class LatestItem extends Activity implements TabListener {
 	protected ListView listView = null;
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
@@ -37,6 +42,10 @@ public class LatestItem extends Activity {
 	List<Item> data = new ArrayList<Item>();
 	protected OnScrollListener scrollListener;
 	protected SharedPreferences sharedPref;
+	private static final int TYPE_ALL = 0;
+	private static final int TYPE_UNREAD = 1;
+	private static final int TYPE_READ = 2;
+	private int getItemType = TYPE_ALL;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,6 +95,12 @@ public class LatestItem extends Activity {
 			}
 		};
         listView.setOnScrollListener(scrollListener);
+        final ActionBar bar = getActionBar();
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        bar.addTab(bar.newTab().setText(R.string.tab_all).setTabListener(this));
+        bar.addTab(bar.newTab().setText(R.string.tab_unread).setTabListener(this));
+//        bar.addTab(bar.newTab().setText(R.string.tab_read).setTabListener(this));
+        
     }
 
     
@@ -94,7 +109,7 @@ public class LatestItem extends Activity {
     		return;
     	}
     	int offset = data.size();
-    	mGetItemTask = new GetItemAsyncTask(this, uuid, offset, 200, new GetItemAsyncTask.UploadEventListener() {
+    	mGetItemTask = new GetItemAsyncTask(this, uuid, offset, 200,getItemType, new GetItemAsyncTask.UploadEventListener() {
 			
 			@Override
 			public void onSuccess(String body) {
@@ -201,4 +216,38 @@ public class LatestItem extends Activity {
 		}
     	
     }
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		reloadDataSet();
+	}
+
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		Resources res = getResources();
+		final String tab_all = res.getString(R.string.tab_all);
+		final String tab_unread = res.getString(R.string.tab_unread);
+		final String tab_read = res.getString(R.string.tab_read);
+		if (tab_all.contentEquals(tab.getText())) {
+			getItemType = TYPE_ALL;
+		} else if (tab_unread.contentEquals(tab.getText())) {
+			getItemType = TYPE_UNREAD;
+		} else if (tab_read.contentEquals(tab.getText())) {
+			getItemType = TYPE_READ;
+		}
+		reloadDataSet();
+	}
+
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		// TODO Auto-generated method stub
+		
+	}
+	private void reloadDataSet() {
+		data.clear();
+		adapter.notifyDataSetChanged();
+		listView.invalidateViews();
+	}
 }

@@ -4,5 +4,8 @@
     <string name="app_name">EfficientMatome</string>
     <string name="action_toWeb">OpenBrowser</string>
     <string name="hello_world">Hello world!</string>
+    <string name="tab_unread">未読</string>
+    <string name="tab_read">既読</string>
+    <string name="tab_all">全部</string>
 
 </resources>

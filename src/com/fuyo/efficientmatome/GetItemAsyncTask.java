@@ -45,12 +45,14 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 	private String uuid;
 	private String resultBody = "";
 	private int resultStatus = 0;
+	private int getItemType;
 	private UploadEventListener uploadEventListener;
-	public GetItemAsyncTask(Context context, String uuid, int offset, int length, UploadEventListener listener) {
+	public GetItemAsyncTask(Context context, String uuid, int offset, int length, int getItemType,UploadEventListener listener) {
 	    this.offset = offset;
 	    this.length = length;
 	    this.uuid = uuid;
 	    this.uploadEventListener = listener;
+	    this.getItemType = getItemType;
 	  }
 	  
 	@Override
@@ -84,6 +86,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 		param.add(new BasicNameValuePair("uuid", uuid));
 		param.add(new BasicNameValuePair("offset", String.valueOf(offset)));
 		param.add(new BasicNameValuePair("length", String.valueOf(length)));
+		param.add(new BasicNameValuePair("type", String.valueOf(getItemType)));
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(param, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
