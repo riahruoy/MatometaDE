@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:text="Titie"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -21,7 +21,7 @@
         <TextView
             android:id="@+id/textViewTime"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="38dp"
             android:gravity="center_vertical"
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -46,9 +46,7 @@
                 android:gravity="right"
                 android:text="Small Text"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-
         </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>

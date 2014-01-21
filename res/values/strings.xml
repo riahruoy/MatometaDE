@@ -5,6 +5,7 @@
     <string name="action_toWeb">OpenBrowser</string>
     <string name="hello_world">Hello world!</string>
     <string-array name="action_list">
+        <item>推薦</item>
         <item>全部</item>
         <item>未読</item>
     </string-array>

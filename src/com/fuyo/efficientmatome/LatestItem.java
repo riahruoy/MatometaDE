@@ -47,7 +47,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_ALL = 0;
 	private static final int TYPE_UNREAD = 1;
 	private static final int TYPE_READ = 2;
-	private int getItemType = TYPE_ALL;
+	private static final int TYPE_SUGGEST = 100;
+	private int getItemType = TYPE_SUGGEST;
 	SpinnerAdapter mSpinnerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +148,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public String link = "";
     	public String date = "";
     	public String site = "";
+    	public String content = "";
     	public boolean read = false;
     	public int time = 0;
     	public Item() {}
@@ -160,6 +162,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		item.date = column[4];
     		item.site = column[5];
     		item.time = Integer.valueOf(column[6]);
+    		if (column.length > 7) {
+    			item.content = Html.fromHtml(column[7]).toString();
+    		}
     		return item;
     	}
     }
@@ -189,11 +194,15 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			TextView textViewDate = (TextView)convertView.findViewById(R.id.textViewDate);
 			TextView textViewSite = (TextView)convertView.findViewById(R.id.textViewSite);
 			TextView textViewTime = (TextView)convertView.findViewById(R.id.textViewTime);
+//			TextView textContent = (TextView)convertView.findViewById(R.id.textContent);
 			LinearLayout llRow = (LinearLayout)convertView.findViewById(R.id.linearLayoutRow);
 			Item item = data.get(position);
 			textViewTitle.setText(item.title);
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
+//			final int QUOTE_SIZE = 100;
+//			String content = item.content.length() > QUOTE_SIZE ? item.content.substring(0, QUOTE_SIZE - 1) : item.content;
+//			textContent.setText(content);
 			
 
 			String timeStr = "";
@@ -227,15 +236,18 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long itemId) {
-		//0: all, 1: unread, 2:read
+		//0: suggest, 1: all, 2: unread, 3:read
 		switch (position) {
 		case 0:
-			getItemType = TYPE_ALL;
+			getItemType = TYPE_SUGGEST;
 			break;
 		case 1:
-			getItemType = TYPE_UNREAD;
+			getItemType = TYPE_ALL;
 			break;
 		case 2:
+			getItemType = TYPE_UNREAD;
+			break;
+		case 3:
 			getItemType = TYPE_READ;
 			break;
 		}
