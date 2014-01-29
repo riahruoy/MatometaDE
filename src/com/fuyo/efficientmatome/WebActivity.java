@@ -1,6 +1,7 @@
 package com.fuyo.efficientmatome;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -8,27 +9,35 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.Toast;
 
 public class WebActivity extends Activity {
-	private WebView webView;
+	private MyWebView webView;
 	private SharedPreferences sharedPref;
 	private TimeMeasure time;
 	private String linkUrl;
 	private int articleId;
 	private String uuid;
+	private double maxScroll;
+	float scale;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        setContentView(R.layout.activity_web);
+//        setContentView(R.layout.activity_web);
 
+        maxScroll = 0;
+        scale = 1;
         uuid = sharedPref.getString(LatestItem.KEY_UUID, "none");
     	time = new TimeMeasure();
 
@@ -40,10 +49,12 @@ public class WebActivity extends Activity {
     		String title = intent.getStringExtra("title");
     		articleId = intent.getIntExtra("articleId", -1);
     		setTitle(title);
-        	webView = (WebView)findViewById(R.id.webView);
+//        	webView = (MyWebView)findViewById(R.id.webView);
+    		webView = new MyWebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
+    		setContentView(webView);
+        	webView.getSettings().setBuiltInZoomControls(true);
     		webView.loadUrl(linkUrl);
-    		
     		
     		
     	} else {
@@ -82,8 +93,8 @@ public class WebActivity extends Activity {
     			time.stop();
     		    Intent intent = new Intent(this, LogUploader.class);
     		    intent.putExtra("url", "http://matome.iijuf.net/_api.timeUploader.php");
-    		    intent.putExtra("paramKeys", new String[]{"uuid", "articleId", "time"});
-    		    intent.putExtra("paramValues", new String[] {uuid, Integer.toString(articleId), Long.toString(time.getTime())});
+    		    intent.putExtra("paramKeys", new String[]{"uuid", "articleId", "time", "scroll"});
+    		    intent.putExtra("paramValues", new String[] {uuid, Integer.toString(articleId), Long.toString(time.getTime()), Double.toString(maxScroll)});
     		    this.startService(intent);
     			finish();
     		}
@@ -91,6 +102,23 @@ public class WebActivity extends Activity {
     	}
     	return super.onKeyDown(keyCode, event);
     }
+    
+    public class MyWebView extends WebView {
+    	public MyWebView(Context context) {
+    		super(context);
+    	}
+    	public MyWebView(Context context, AttributeSet atters) {
+    		super(context, atters);
+    	}
+    	@Override
+    	public void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
+			double r = (double)(webView.getScrollY() + webView.getHeight()) / (double)(webView.getContentHeight() * webView.getScale());
+//			double r = (double)(t) / (double)(webView.getContentHeight());
+			maxScroll = Math.max(r, maxScroll);
+    	}
+
+    }
+    
     private class MyWebViewClient extends WebViewClient {
     	@Override
     	public void onPageStarted(WebView view, String url, Bitmap favicon) {
@@ -104,6 +132,10 @@ public class WebActivity extends Activity {
     			time.start();
 //    			Toast.makeText(WebActivity.this, "start", Toast.LENGTH_SHORT).show();
     		}
+    	}
+    	@Override
+    	public void onScaleChanged(WebView view, float oldScale, float newScale) {
+    		scale = newScale;
     	}
     }
     @Override
