@@ -12,6 +12,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -96,6 +97,21 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
 				startActivity(intent);
+			}
+		});
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+					int position, long id) {
+				Item item = (Item)listView.getItemAtPosition(position);
+				StringBuilder sb = new StringBuilder();
+				sb.append("id : ").append(item.id).append('\n');
+				new AlertDialog.Builder(LatestItem.this)
+				.setTitle("debug")
+				.setMessage(sb.toString())
+				.show();
+				return false;
 			}
 		});
         scrollListener = new OnScrollListener() {
