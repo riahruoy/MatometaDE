@@ -48,7 +48,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 	private int getItemType;
 	private UploadEventListener uploadEventListener;
 	private int versionCode;
-	public GetItemAsyncTask(Context context, String uuid, int offset, int length, int versionCode, int getItemType,UploadEventListener listener) {
+	public GetItemAsyncTask(Context context, String uuid, int offset, int length, int getItemType, int versionCode, UploadEventListener listener) {
 	    this.offset = offset;
 	    this.length = length;
 	    this.uuid = uuid;
