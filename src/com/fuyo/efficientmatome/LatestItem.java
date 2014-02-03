@@ -1,5 +1,6 @@
 package com.fuyo.efficientmatome;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,8 +22,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.text.Html;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.TextureView;
 import android.view.View;
@@ -32,6 +36,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
@@ -178,6 +183,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public String date = "";
     	public String site = "";
     	public String content = "";
+    	public byte[] icon;
     	public boolean read = false;
     	public int time = 0;
     	public Item() {}
@@ -191,8 +197,15 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		item.date = column[4];
     		item.site = column[5];
     		item.time = Integer.valueOf(column[6]);
+    		item.content = "";
+    		item.icon = null;
     		if (column.length > 7) {
-    			item.content = Html.fromHtml(column[7]).toString();
+    			if (column[7].length() > 0) {
+    				item.icon = Base64.decode(column[7], Base64.DEFAULT);
+    			} else {
+    				item.icon = null;
+    			}
+//    			item.content = Html.fromHtml(column[7]).toString();
     		}
     		return item;
     	}
@@ -224,11 +237,25 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			TextView textViewSite = (TextView)convertView.findViewById(R.id.textViewSite);
 			TextView textViewTime = (TextView)convertView.findViewById(R.id.textViewTime);
 //			TextView textContent = (TextView)convertView.findViewById(R.id.textContent);
+			ImageView imgViewIcon = (ImageView)convertView.findViewById(R.id.imageViewIcon);
 			LinearLayout llRow = (LinearLayout)convertView.findViewById(R.id.linearLayoutRow);
 			Item item = data.get(position);
 			textViewTitle.setText(item.title);
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
+
+			if (item.icon != null) {
+				imgViewIcon.setVisibility(View.VISIBLE);
+				Bitmap bmp = BitmapFactory.decodeByteArray(item.icon, 0, item.icon.length);
+				imgViewIcon.setImageBitmap(bmp);
+			} else {
+				imgViewIcon.setVisibility(View.INVISIBLE);
+
+			}
+
+
+
+			
 //			final int QUOTE_SIZE = 100;
 //			String content = item.content.length() > QUOTE_SIZE ? item.content.substring(0, QUOTE_SIZE - 1) : item.content;
 //			textContent.setText(content);
