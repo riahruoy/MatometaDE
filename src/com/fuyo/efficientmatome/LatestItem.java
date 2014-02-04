@@ -31,6 +31,8 @@ import android.view.Menu;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -185,6 +187,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public String content = "";
     	public byte[] icon;
     	public boolean read = false;
+    	public boolean hasShown = false;
     	public int time = 0;
     	public Item() {}
     	public static Item getFromLine(String line) {
@@ -277,7 +280,11 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				textViewDate.setTextColor(Color.WHITE);
 				textViewTime.setTextColor(Color.WHITE);
 			}
-			
+			if (!item.hasShown) { 
+				Animation anim = AnimationUtils.loadAnimation(LatestItem.this, R.anim.item_motion);
+				convertView.startAnimation(anim);
+				item.hasShown = true;
+			}
 			return convertView;
 		}
     	
