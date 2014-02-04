@@ -39,17 +39,16 @@ import android.util.Log;
 
 
 
-public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
+public class ItemIdsDownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 	private String uuid;
 	private String resultBody = "";
 	private int resultStatus = 0;
-	private int[] itemIds;
+	private int getItemType;
 	private UploadEventListener uploadEventListener;
-	private int versionCode;
-	public GetItemAsyncTask(Context context, String uuid, int[] itemIds, UploadEventListener listener) {
+	public ItemIdsDownloadAsyncTask(Context context, String uuid, int getItemType, UploadEventListener listener) {
 	    this.uuid = uuid;
 	    this.uploadEventListener = listener;
-	    this.itemIds = itemIds;
+	    this.getItemType = getItemType;
 	  }
 	  
 	@Override
@@ -59,7 +58,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 		httpParams.setParameter(CoreConnectionPNames.SO_TIMEOUT, Integer.valueOf(30000));
 		HttpClient httpClient = new DefaultHttpClient(httpParams);
 
-		HttpPost httpPost = new HttpPost("http://matome.iijuf.net/_api.getItemsFromIds.php");
+		HttpPost httpPost = new HttpPost("http://matome.iijuf.net/_api.getItemIds.php");
 		List<NameValuePair> param = new ArrayList<NameValuePair>();
 		ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 	
@@ -81,9 +80,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 				    	  
 		};
 		param.add(new BasicNameValuePair("uuid", uuid));
-		for (int itemId : itemIds) {
-			param.add(new BasicNameValuePair("itemId[]", String.valueOf(itemId)));
-		}
+		param.add(new BasicNameValuePair("type", String.valueOf(getItemType)));
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(param, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {

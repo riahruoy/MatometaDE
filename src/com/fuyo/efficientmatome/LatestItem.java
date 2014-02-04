@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +19,7 @@ import android.app.ActionBar.TabListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -52,6 +56,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	protected static final int IMGVIEW_ID = 0x7f190000;
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
+	protected int[] itemIds = new int[]{};
 	protected GetItemAsyncTask mGetItemTask = null;
 	protected String uuid = "testUIDD";
 	static final String KEY_UUID = "uuid";
@@ -132,7 +137,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
-				if (totalItemCount == firstVisibleItem + visibleItemCount) {
+
+				if (totalItemCount > firstVisibleItem + visibleItemCount - 20) {
 					addtitionalReading();
 				}
 			}
@@ -142,15 +148,25 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
         bar.setListNavigationCallbacks(mSpinnerAdapter, this);
+        reloadDataSet();
     }
 
     
     private void addtitionalReading() {
     	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
-    		return;
+    		mGetItemTask.cancel(true);
+//    		return;
+    	}
+    	if (itemIds.length == 0) {
+//    		return;
     	}
     	int offset = data.size();
-    	mGetItemTask = new GetItemAsyncTask(this, uuid, offset, 200,getItemType,versionCode, new GetItemAsyncTask.UploadEventListener() {
+    	final int LOADSIZE = 30;
+    	int[] loadIds = new int [LOADSIZE]; 
+    	for (int i = 0; i + offset < itemIds.length && i < LOADSIZE; i++) {
+    		loadIds[i] = itemIds[i + offset];
+    	}
+    	mGetItemTask = new GetItemAsyncTask(this, uuid, loadIds, new GetItemAsyncTask.UploadEventListener() {
 			
 			@Override
 			public void onSuccess(String body) {
@@ -309,7 +325,54 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     }
 
 	private void reloadDataSet() {
-		data.clear();
+
+		
+		ItemIdsDownloadAsyncTask task = new ItemIdsDownloadAsyncTask(this, uuid, getItemType, new ItemIdsDownloadAsyncTask.UploadEventListener() {
+			ProgressDialog dialog;
+			@Override
+			public void onSuccess(String body) {
+				if (dialog.isShowing()) {
+					dialog.dismiss();
+				}
+				body = body.replace("\n", "");
+				String[] strIds = body.split("\t");
+				itemIds = new int[strIds.length];
+				for (int i = 0; i < strIds.length; i++) {
+					itemIds[i] = Integer.valueOf(strIds[i]);
+				}
+			}
+			
+			@Override
+			public void onPreExecute() {
+				dialog = new ProgressDialog(LatestItem.this);
+				dialog.setMessage("Loading...");
+				dialog.show();
+			}
+			
+			@Override
+			public void onFailure() {
+				if (dialog.isShowing()) {
+					dialog.dismiss();
+				}
+			}
+		});
+		task.execute("");
+		
+		try {
+			task.get(30, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		data.clear();//order is important
+		itemIds = new int[]{};
 		adapter.notifyDataSetChanged();
 		listView.invalidateViews();
 	}
@@ -335,4 +398,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		reloadDataSet();
 		return true;
 	}
+	
+
 }
