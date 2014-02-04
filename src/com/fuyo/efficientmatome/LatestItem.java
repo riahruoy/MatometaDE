@@ -294,9 +294,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				textViewTime.setTextColor(Color.DKGRAY);
 			} else {
 				textViewTitle.setTextColor(Color.WHITE);
-				textViewSite.setTextColor(Color.WHITE);
-				textViewDate.setTextColor(Color.WHITE);
-				textViewTime.setTextColor(Color.WHITE);
+				textViewSite.setTextColor(Color.GRAY);
+				textViewDate.setTextColor(Color.GRAY);
+				textViewTime.setTextColor(Color.GRAY);
 			}
 			if (!item.hasShown) { 
 				Animation anim = AnimationUtils.loadAnimation(LatestItem.this, R.anim.item_motion);
