@@ -16,9 +16,6 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.Html;
@@ -50,9 +47,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_ALL = 0;
 	private static final int TYPE_UNREAD = 1;
 	private static final int TYPE_READ = 2;
-	private static final int TYPE_SUGGEST = 100;	
+	private static final int TYPE_SUGGEST = 100;
 	private int getItemType = TYPE_SUGGEST;
-	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,15 +65,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         } else {
         	uuid = sharedPref.getString(KEY_UUID, "testUUID");
         }
-        PackageManager packageManager = this.getPackageManager();
- 
-        try {
-               PackageInfo packageInfo = packageManager.getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
-               versionCode = packageInfo.versionCode;
-          } catch (NameNotFoundException e) {
-               e.printStackTrace();
-          }
-
         
         
         listView.addFooterView(mFooter);
@@ -124,7 +111,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		return;
     	}
     	int offset = data.size();
-    	mGetItemTask = new GetItemAsyncTask(this, uuid, offset, 200,getItemType,versionCode, new GetItemAsyncTask.UploadEventListener() {
+    	mGetItemTask = new GetItemAsyncTask(this, uuid, offset, 200,getItemType, new GetItemAsyncTask.UploadEventListener() {
 			
 			@Override
 			public void onSuccess(String body) {
