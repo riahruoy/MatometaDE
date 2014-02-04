@@ -1,6 +1,7 @@
 package com.fuyo.efficientmatome;
 
 import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -41,12 +42,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class LatestItem extends Activity implements ActionBar.OnNavigationListener{
 	protected ListView listView = null;
+	protected static final int IMGVIEW_ID = 0x7f190000;
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
 	protected GetItemAsyncTask mGetItemTask = null;
@@ -179,6 +182,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
     
     private static class Item {
+//    	private static final SimpleDateFormat sdfTime = new SimpleDateFormat("");
     	public int id = -1;
     	public String title = "";
     	public String link = "";
@@ -188,6 +192,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public byte[] icon;
     	public boolean read = false;
     	public boolean hasShown = false;
+    	public int random;
     	public int time = 0;
     	public Item() {}
     	public static Item getFromLine(String line) {
@@ -210,6 +215,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     			}
 //    			item.content = Html.fromHtml(column[7]).toString();
     		}
+    		item.random = (int)Math.floor(Math.random() * 10);
     		return item;
     	}
     }
@@ -240,22 +246,34 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			TextView textViewSite = (TextView)convertView.findViewById(R.id.textViewSite);
 			TextView textViewTime = (TextView)convertView.findViewById(R.id.textViewTime);
 //			TextView textContent = (TextView)convertView.findViewById(R.id.textContent);
-			ImageView imgViewIcon = (ImageView)convertView.findViewById(R.id.imageViewIcon);
+
 			LinearLayout llRow = (LinearLayout)convertView.findViewById(R.id.linearLayoutRow);
 			Item item = data.get(position);
 			textViewTitle.setText(item.title);
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
-
+			
+			ImageView imgViewIcon = (ImageView)llRow.findViewById(IMGVIEW_ID);
+			if (imgViewIcon != null) {
+				llRow.removeView(imgViewIcon);
+			}
+			
 			if (item.icon != null) {
-				imgViewIcon.setVisibility(View.VISIBLE);
+				imgViewIcon = new ImageView(LatestItem.this);
+				imgViewIcon.setId(IMGVIEW_ID);
+
+//				imgViewIcon.setBackgroundColor(Color.DKGRAY);
 				Bitmap bmp = BitmapFactory.decodeByteArray(item.icon, 0, item.icon.length);
 				imgViewIcon.setImageBitmap(bmp);
-			} else {
-				imgViewIcon.setVisibility(View.INVISIBLE);
-
+				
+				if (position % 2 == 0) {
+					imgViewIcon.setPadding(5, 5, 20, 5);
+					llRow.addView(imgViewIcon, 0);
+				} else {
+					imgViewIcon.setPadding(20, 5, 5, 5);
+					llRow.addView(imgViewIcon, 1);
+				}
 			}
-
 
 
 			
