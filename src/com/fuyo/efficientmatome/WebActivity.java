@@ -108,6 +108,8 @@ public class WebActivity extends Activity {
 	    intent.putExtra("paramValues", new String[] {uuid, Integer.toString(articleId), Long.toString(time.getTime()), Double.toString(maxScroll)});
 	    this.startService(intent);
     	super.finish();
+    	overridePendingTransition(R.anim.push_left_in, R.anim.push_right_out);
+
     }
     
     public class MyWebView extends WebView {

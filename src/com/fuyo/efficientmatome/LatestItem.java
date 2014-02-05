@@ -116,6 +116,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
 				startActivity(intent);
+		    	overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
 			}
 		});
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
