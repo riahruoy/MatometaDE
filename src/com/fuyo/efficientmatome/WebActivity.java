@@ -11,10 +11,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
@@ -90,22 +93,28 @@ public class WebActivity extends Activity {
     			}
     		} else {
 //    			Toast.makeText(WebActivity.this, "upload", Toast.LENGTH_SHORT).show();
-    			time.stop();
-    		    Intent intent = new Intent(this, LogUploader.class);
-    		    intent.putExtra("url", "http://matome.iijuf.net/_api.timeUploader.php");
-    		    intent.putExtra("paramKeys", new String[]{"uuid", "articleId", "time", "scroll"});
-    		    intent.putExtra("paramValues", new String[] {uuid, Integer.toString(articleId), Long.toString(time.getTime()), Double.toString(maxScroll)});
-    		    this.startService(intent);
     			finish();
     		}
     		return true;
     	}
     	return super.onKeyDown(keyCode, event);
     }
+    @Override
+    public void finish() {
+		time.stop();
+	    Intent intent = new Intent(this, LogUploader.class);
+	    intent.putExtra("url", "http://matome.iijuf.net/_api.timeUploader.php");
+	    intent.putExtra("paramKeys", new String[]{"uuid", "articleId", "time", "scroll"});
+	    intent.putExtra("paramValues", new String[] {uuid, Integer.toString(articleId), Long.toString(time.getTime()), Double.toString(maxScroll)});
+	    this.startService(intent);
+    	super.finish();
+    }
     
     public class MyWebView extends WebView {
+    	GestureDetector gd;
     	public MyWebView(Context context) {
     		super(context);
+    		 gd = new GestureDetector(context, onGestureListener);
     	}
     	public MyWebView(Context context, AttributeSet atters) {
     		super(context, atters);
@@ -116,7 +125,28 @@ public class WebActivity extends Activity {
 //			double r = (double)(t) / (double)(webView.getContentHeight());
 			maxScroll = Math.max(r, maxScroll);
     	}
-
+    	@Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return (gd.onTouchEvent(event) || super.onTouchEvent(event));
+        }
+    	private final SimpleOnGestureListener onGestureListener = new SimpleOnGestureListener() {
+    		@Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {
+                float deltax,deltay,velo;
+                int pref_browser_gesturevelo = 350; 
+                deltax = e2.getRawX()-e1.getRawX();
+                deltay = Math.abs(e1.getRawY()-e2.getRawY());
+                velo = Math.abs(velocityX);
+     
+                //pref_browser_gesturevelo is how fast finger moves.
+                //pref_browser_gesturevelo set to 350 as default in my app
+                if (deltax > 200 && deltay < 90 && velo > pref_browser_gesturevelo) {
+                   	finish();
+                   	return true;
+                }
+                return super.onFling(e1, e2, velocityX, velocityY);
+            }
+    	};
     }
     
     private class MyWebViewClient extends WebViewClient {
