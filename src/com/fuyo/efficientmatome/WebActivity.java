@@ -142,7 +142,7 @@ public class WebActivity extends Activity {
      
                 //pref_browser_gesturevelo is how fast finger moves.
                 //pref_browser_gesturevelo set to 350 as default in my app
-                if (deltax > 200 && deltay < 90 && velo > pref_browser_gesturevelo) {
+                if (deltax > 200 && deltay < 30 && velo > pref_browser_gesturevelo) {
                    	finish();
                    	return true;
                 }
