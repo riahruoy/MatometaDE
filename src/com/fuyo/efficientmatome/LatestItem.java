@@ -9,6 +9,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
+
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -74,7 +78,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private int getItemType = TYPE_SUGGEST;
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
-    @Override
+	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
+	private AdView adView;
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_latest_item);
@@ -185,8 +191,16 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		});
         ucat.execute(new String[]{});
 
+        adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
+        LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);
+        layout.addView(adView);
+        adView.loadAd(new AdRequest());
     }
-
+	@Override
+	public void onDestroy() {
+		adView.destroy();
+		super.onDestroy();
+	}
     
     private void addtitionalReading() {
     	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {

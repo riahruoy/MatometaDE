@@ -1,5 +1,9 @@
 package com.fuyo.efficientmatome;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +25,7 @@ import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
+import android.widget.LinearLayout;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Toast;
 
@@ -32,7 +37,10 @@ public class WebActivity extends Activity {
 	private int articleId;
 	private String uuid;
 	private double maxScroll;
+	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/1910436460";
+	private AdView adView;
 	float scale;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,11 +61,25 @@ public class WebActivity extends Activity {
     		articleId = intent.getIntExtra("articleId", -1);
     		setTitle(title);
 //        	webView = (MyWebView)findViewById(R.id.webView);
-    		webView = new MyWebView(this);
+    		setContentView(R.layout.activity_web);
+            LinearLayout layout = (LinearLayout)findViewById(R.id.WebLinearLayout);
+
+            
+            webView = new MyWebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
-    		setContentView(webView);
         	webView.getSettings().setBuiltInZoomControls(true);
+
+
+        	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+        			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        	param.weight = 1;
+        	layout.addView(webView, param);
     		webView.loadUrl(linkUrl);
+
+    		
+    		adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
+            layout.addView(adView);
+            adView.loadAd(new AdRequest());
     		
     		
     	} else {
