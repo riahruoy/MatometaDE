@@ -38,7 +38,7 @@ public class WebActivity extends Activity {
 	private String uuid;
 	private double maxScroll;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/1910436460";
-	private AdView adView;
+	private AdView adView = null;
 	float scale;
 	
     @Override
@@ -88,6 +88,13 @@ public class WebActivity extends Activity {
     	}
 
     }
+	@Override
+	public void onDestroy() {
+		if (adView != null) {
+			adView.destroy();
+		}
+		super.onDestroy();
+	}
     
     @Override
     public void onPause() {
@@ -157,7 +164,7 @@ public class WebActivity extends Activity {
     		@Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {
                 float deltax,deltay,velo;
-                int pref_browser_gesturevelo = 350; 
+                int pref_browser_gesturevelo = 500; 
                 deltax = e2.getRawX()-e1.getRawX();
                 deltay = Math.abs(e1.getRawY()-e2.getRawY());
                 velo = Math.abs(velocityX);
