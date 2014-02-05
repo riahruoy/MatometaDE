@@ -164,7 +164,7 @@ public class WebActivity extends Activity {
     		@Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {
                 float deltax,deltay,velo;
-                int pref_browser_gesturevelo = 500; 
+                int pref_browser_gesturevelo = 350; 
                 deltax = e2.getRawX()-e1.getRawX();
                 deltay = Math.abs(e1.getRawY()-e2.getRawY());
                 velo = Math.abs(velocityX);
