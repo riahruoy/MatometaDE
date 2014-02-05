@@ -35,6 +35,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.text.Html;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.TextureView;
 import android.view.View;
@@ -141,7 +142,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 
-				if (totalItemCount > firstVisibleItem + visibleItemCount - 20) {
+				if (totalItemCount < firstVisibleItem + visibleItemCount + 20) {
 					addtitionalReading();
 				}
 			}
@@ -189,12 +190,14 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     private void addtitionalReading() {
     	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
     		mGetItemTask.cancel(true);
+    		Log.d("loading", "itemTask is cancelled");
 //    		return;
     	}
     	if (itemIds.length == 0) {
+    		Log.d("loading", "itemIds.length == 0");
 //    		return;
     	}
-    	int offset = data.size();
+    	final int offset = data.size();
     	final int LOADSIZE = 30;
     	int[] loadIds = new int [LOADSIZE]; 
     	for (int i = 0; i + offset < itemIds.length && i < LOADSIZE; i++) {
@@ -213,6 +216,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 					
 					data.add(Item.getFromLine(line));
 				}
+	    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
 				adapter.notifyDataSetChanged();
 				listView.invalidateViews();
 			}
