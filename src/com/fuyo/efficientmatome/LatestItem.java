@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -20,6 +21,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -147,8 +150,39 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         final ActionBar bar = getActionBar();
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
-        bar.setListNavigationCallbacks(mSpinnerAdapter, this);
         reloadDataSet();
+        bar.setListNavigationCallbacks(mSpinnerAdapter, this);
+        UpdateCheckAsyncTask ucat = new UpdateCheckAsyncTask(this, versionCode, new UpdateCheckAsyncTask.UpdateCheckListener() {
+			
+			@Override
+			public void onNewVersionFound(final String apkName) {
+				new AlertDialog.Builder(LatestItem.this)
+					.setTitle("New Version Found")
+					.setMessage("新しいバージョン:" + apkName + "が見つかりました。ダウンロードしますか")
+					.setPositiveButton("ダウンロード", new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Uri uri = Uri.parse("http://matome.iijuf.net/apk/" + apkName);
+							Intent i = new Intent(Intent.ACTION_VIEW, uri);
+							startActivity(i);
+							finish();
+						}
+
+					})
+					.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+						}
+					})
+					.setCancelable(true)
+					.show();
+				
+			}
+		});
+        ucat.execute(new String[]{});
+
     }
 
     
