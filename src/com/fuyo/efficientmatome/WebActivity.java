@@ -91,8 +91,13 @@ public class WebActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		if (adView != null) {
+			adView.removeAllViews();
 			adView.destroy();
 		}
+		webView.stopLoading();
+		webView.setWebViewClient(null);
+		webView.setWebChromeClient(null);
+		webView.removeAllViews();
 		super.onDestroy();
 	}
     
