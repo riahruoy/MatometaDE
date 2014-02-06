@@ -363,7 +363,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				textViewTime.setTextColor(Color.DKGRAY);
 			} else {
 				textViewTitle.setTextColor(Color.WHITE);
-				textViewSite.setTextColor(Color.GRAY);
+				textViewSite.setTextColor(Color.rgb(255, 160, 122));
 				textViewDate.setTextColor(Color.GRAY);
 				textViewTime.setTextColor(Color.GRAY);
 			}
