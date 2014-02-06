@@ -68,6 +68,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	protected GetItemAsyncTask mGetItemTask = null;
 	protected String uuid = "testUIDD";
 	static final String KEY_UUID = "uuid";
+	static final String KEY_DEFAULT_TYPE = "default_type";
 	List<Item> data = new ArrayList<Item>();
 	protected OnScrollListener scrollListener;
 	protected SharedPreferences sharedPref;
@@ -95,6 +96,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         } else {
         	uuid = sharedPref.getString(KEY_UUID, "testUUID");
         }
+    	getItemType = sharedPref.getInt(KEY_DEFAULT_TYPE, TYPE_SUGGEST);
         PackageManager packageManager = this.getPackageManager();
  
         try {
@@ -448,6 +450,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			getItemType = TYPE_READ;
 			break;
 		}
+		Editor e = sharedPref.edit();
+		e.putInt(KEY_DEFAULT_TYPE, getItemType);
+		e.commit();
 		reloadDataSet();
 		return true;
 	}
