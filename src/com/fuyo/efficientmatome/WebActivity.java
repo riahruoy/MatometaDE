@@ -164,14 +164,15 @@ public class WebActivity extends Activity {
     		@Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {
                 float deltax,deltay,velo;
-                int pref_browser_gesturevelo = 350; 
+//                int pref_browser_gesturevelo = 200;
                 deltax = e2.getRawX()-e1.getRawX();
                 deltay = Math.abs(e1.getRawY()-e2.getRawY());
                 velo = Math.abs(velocityX);
      
                 //pref_browser_gesturevelo is how fast finger moves.
                 //pref_browser_gesturevelo set to 350 as default in my app
-                if (deltax > 200 && deltay < 30 && velo > pref_browser_gesturevelo) {
+                
+                if (deltax > 150 && deltay / deltax < Math.tan(Math.toRadians(30))) {
                    	finish();
                    	return true;
                 }
