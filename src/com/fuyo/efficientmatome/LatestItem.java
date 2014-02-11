@@ -194,7 +194,11 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
         LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);
         layout.addView(adView);
-        adView.loadAd(new AdRequest());
+        AdRequest request = new AdRequest();
+        request.addKeyword("travel");
+        request.addKeyword("job");
+        request.addKeyword("english");
+        adView.loadAd(request);
     }
 	@Override
 	public void onDestroy() {
