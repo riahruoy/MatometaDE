@@ -9,7 +9,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.google.ads.Ad;
+import com.google.ads.AdListener;
 import com.google.ads.AdRequest;
+import com.google.ads.AdRequest.ErrorCode;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 
@@ -37,6 +40,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.v4.app.ActionBarDrawerToggle.Delegate;
 import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
@@ -64,6 +68,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	protected static final int IMGVIEW_ID = 0x7f190000;
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
+	protected ItemAdAdapter adAdapter = null;
 	protected int[] itemIds = new int[]{};
 	protected GetItemAsyncTask mGetItemTask = null;
 	protected String uuid = "testUIDD";
@@ -77,6 +82,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_READ = 2;
 	private static final int TYPE_SUGGEST = 100;	
 	private int getItemType = TYPE_SUGGEST;
+	private static final int AD_INTERVAL = 20;
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
@@ -109,11 +115,13 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         
         listView.addFooterView(mFooter);
         adapter = new ItemAdapter();
-        listView.setAdapter(adapter);
+        adAdapter = new ItemAdAdapter(this, adapter);
+        listView.setAdapter(adAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
+
 
 				data.get(position).read = true;
 				listView.invalidateViews();
@@ -131,6 +139,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long id) {
+				if (adAdapter.isAd(position)) return false;
 				Item item = (Item)listView.getItemAtPosition(position);
 				StringBuilder sb = new StringBuilder();
 				sb.append("id : ").append(item.id).append('\n');
@@ -292,10 +301,109 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		return item;
     	}
     }
+
+    private class ItemAdAdapter extends ItemAdapter implements AdListener {
+    	ItemAdapter delegate;
+    	Activity activity;
+    	public ItemAdAdapter(Activity activity, ItemAdapter delegate) {
+    		this.delegate = delegate;
+    		this.activity = activity;
+    	}
+    	@Override
+    	public View getView(int position, View convertView, ViewGroup parent) {
+    		if (isAd(position)) {
+    			if (convertView instanceof AdView) {
+    				return convertView;
+    			} else {
+    				AdView adView = new AdView(activity, AdSize.BANNER, MY_AD_UNIT_ID);
+    				float density = activity.getResources().getDisplayMetrics().density;
+    		        int height = Math.round(AdSize.BANNER.getHeight() * density);
+    		        AbsListView.LayoutParams params = new AbsListView.LayoutParams(
+    		            AbsListView.LayoutParams.FILL_PARENT,
+    		            height);
+    		        adView.setLayoutParams(params);
+    		        adView.loadAd(new AdRequest());
+    		        return adView;
+    			}
+    		} else {
+    			return delegate.getView(toBasePosition(position), convertView, parent);
+    		}
+    	}
+    	@Override
+    	public long getItemId(int position) {
+    		return position;
+    	}
+    	@Override
+    	public int getViewTypeCount() {
+    		return delegate.getViewTypeCount() + 1;
+    	}
+    	@Override
+    	public int getItemViewType(int position) {
+    		if (isAd(position)) {
+    			return delegate.getViewTypeCount();
+    		} else {
+    			return delegate.getItemViewType(toBasePosition(position));
+    		}
+    	}
+    	@Override
+    	public int getCount() {
+    		return delegate.getCount() + adCount(delegate.getCount());
+    	}
+    	@Override
+    	public Object getItem(int position) {
+    		if (isAd(position)) {
+    			return null;
+    		} else {
+    			return delegate.getItem(toBasePosition(position));
+    		}
+    	}
+    	
+		@Override
+		public void onDismissScreen(Ad arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onFailedToReceiveAd(Ad arg0, ErrorCode arg1) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onLeaveApplication(Ad arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onPresentScreen(Ad arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onReceiveAd(Ad arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		private int toBasePosition(int position) {
+			return position - adCount(position);
+		}
+		private int adCount(int position) {
+			return (int)Math.floor((position + 1) / AD_INTERVAL);
+		}
+		private boolean isAd(int position) {
+			return ((position + 1) % AD_INTERVAL == 0);
+		}
+    	
+    }
     
     private class ItemAdapter extends BaseAdapter {
 		@Override
 		public int getCount() {
+			
 			return data.size();
 		}
 
