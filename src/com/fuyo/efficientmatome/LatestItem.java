@@ -123,7 +123,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 					long id) {
 
 
-				data.get(position).read = true;
+				data.get(adAdapter.toBasePosition(position)).read = true;
 				listView.invalidateViews();
 				Item item = (Item)listView.getItemAtPosition(position);
 				Intent intent = new Intent(LatestItem.this, WebActivity.class);
@@ -313,6 +313,13 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public View getView(int position, View convertView, ViewGroup parent) {
     		if (isAd(position)) {
     			if (convertView instanceof AdView) {
+    		        AdRequest request = new AdRequest();
+    		        request.addKeyword("travel");
+    		        request.addKeyword("job");
+    		        request.addKeyword("shopping");
+    		        request.addKeyword("food");
+    		        AdView adView = (AdView)convertView;
+    		        adView.loadAd(request);
     				return convertView;
     			} else {
     				AdView adView = new AdView(activity, AdSize.BANNER, MY_AD_UNIT_ID);
