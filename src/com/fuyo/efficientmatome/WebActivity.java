@@ -42,7 +42,7 @@ public class WebActivity extends Activity {
 	private double maxScroll;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/1910436460";
 	private AdView adView = null;
-	private static final int THRESHOLD_ANGLE = 30;
+	private static final int THRESHOLD_ANGLE = 15;
 	private static final int THRESHOLD_X = 150;
 	private ProgressBar progress;
 	float scale;
