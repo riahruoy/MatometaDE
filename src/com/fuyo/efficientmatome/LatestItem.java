@@ -245,7 +245,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 					data.add(Item.getFromLine(line));
 				}
 	    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
-				adapter.notifyDataSetChanged();
+				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
 			}
 			
@@ -419,7 +419,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null) {
+			if (convertView == null || convertView instanceof AdView) {
 				convertView = getLayoutInflater().inflate(R.layout.latest_row, null);
 			}
 			TextView textViewTitle = (TextView)convertView.findViewById(R.id.textViewTitle);
@@ -538,7 +538,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		
 		data.clear();//order is important
 		itemIds = new int[]{};
-		adapter.notifyDataSetChanged();
+		adAdapter.notifyDataSetChanged();
 		listView.invalidateViews();
 	}
 
