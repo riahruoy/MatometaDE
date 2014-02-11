@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -22,11 +23,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class WebActivity extends Activity {
@@ -39,6 +42,9 @@ public class WebActivity extends Activity {
 	private double maxScroll;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/1910436460";
 	private AdView adView = null;
+	private static final int THRESHOLD_ANGLE = 30;
+	private static final int THRESHOLD_X = 150;
+	private ProgressBar progress;
 	float scale;
 	
     @Override
@@ -75,6 +81,11 @@ public class WebActivity extends Activity {
         	param.weight = 1;
         	layout.addView(webView, param);
     		webView.loadUrl(linkUrl);
+
+    		progress = (ProgressBar)findViewById(R.id.view_actionbar_progress);
+
+    		progress.setMax(100);
+    		progress.setIndeterminate(false);
 
     		
     		adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
@@ -183,12 +194,29 @@ public class WebActivity extends Activity {
                 //pref_browser_gesturevelo is how fast finger moves.
                 //pref_browser_gesturevelo set to 350 as default in my app
                 
-                if (deltax > 150 && deltay / deltax < Math.tan(Math.toRadians(30))) {
+                if (deltax > THRESHOLD_X && deltay / deltax < Math.tan(Math.toRadians(THRESHOLD_ANGLE))) {
                    	finish();
                    	return true;
                 }
+                progress.setProgress(0);
                 return super.onFling(e1, e2, velocityX, velocityY);
             }
+    		@Override
+    		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    			// This is NOT the distance between e1 and e2.
+    			float moveX = e2.getRawX() - e1.getRawX();
+    			float absMoveY = Math.abs(e2.getRawY() - e1.getRawY());
+    			if (moveX < 0) {
+    				progress.setProgress(0);
+    				return false;
+    			}
+    			int score = 0;
+    			score = Math.min((int)Math.floor(moveX / THRESHOLD_X * 50), 50);
+    			float angle = absMoveY / moveX;
+    			score += Math.min((int)Math.floor(Math.tan(Math.toRadians(THRESHOLD_ANGLE)) / angle * 50), 50);
+    			progress.setProgress(score);
+    			return false;
+    		}
     	};
     }
     
