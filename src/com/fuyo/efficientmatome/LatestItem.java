@@ -86,7 +86,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
-	private AdView adView;
+
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,7 +211,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     }
 	@Override
 	public void onDestroy() {
-		adView.destroy();
+//		adView.destroy();
 		super.onDestroy();
 	}
     
@@ -322,7 +322,12 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		            AbsListView.LayoutParams.FILL_PARENT,
     		            height);
     		        adView.setLayoutParams(params);
-    		        adView.loadAd(new AdRequest());
+    		        AdRequest request = new AdRequest();
+    		        request.addKeyword("travel");
+    		        request.addKeyword("job");
+    		        request.addKeyword("shopping");
+    		        request.addKeyword("food");
+    		        adView.loadAd(request);
     		        return adView;
     			}
     		} else {
