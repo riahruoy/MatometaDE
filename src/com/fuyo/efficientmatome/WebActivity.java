@@ -79,7 +79,13 @@ public class WebActivity extends Activity {
     		
     		adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
             layout.addView(adView);
-            adView.loadAd(new AdRequest());
+            AdRequest request = new AdRequest();
+            request.addKeyword("ì]êE");
+            request.addKeyword("ó∑çs");
+            request.addKeyword("job");
+            request.addKeyword("travel");
+
+            adView.loadAd(request);
     		
     		
     	} else {
