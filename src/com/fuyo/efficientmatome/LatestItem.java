@@ -3,7 +3,9 @@ package com.fuyo.efficientmatome;
 import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -313,11 +315,21 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public View getView(int position, View convertView, ViewGroup parent) {
     		if (isAd(position)) {
     			if (convertView instanceof AdView) {
+    				
+    				Set<String> keywords = new HashSet<String>();
+    				keywords.add("job");
+    				keywords.add("travel");
+    				Item item = (Item)getItem(position - 1);
+    				for (net.reduls.sanmoku.Morpheme e : net.reduls.sanmoku.Tagger.parse(item.title)) {
+    					String[] property = e.feature.split(",");
+    					String parse = property[0];
+    					if (parse.contains("–¼ŽŒ")) {
+    						keywords.add(e.surface);
+    					}
+    				}
     		        AdRequest request = new AdRequest();
-    		        request.addKeyword("travel");
-    		        request.addKeyword("job");
-    		        request.addKeyword("shopping");
-    		        request.addKeyword("food");
+
+    		        request.addKeywords(keywords);
     		        AdView adView = (AdView)convertView;
     		        adView.loadAd(request);
     				return convertView;
@@ -330,10 +342,19 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		            height);
     		        adView.setLayoutParams(params);
     		        AdRequest request = new AdRequest();
-    		        request.addKeyword("travel");
-    		        request.addKeyword("job");
-    		        request.addKeyword("shopping");
-    		        request.addKeyword("food");
+
+    		        Set<String> keywords = new HashSet<String>();
+    				keywords.add("job");
+    				keywords.add("travel");
+    				Item item = (Item)getItem(position - 1);
+    				for (net.reduls.sanmoku.Morpheme e : net.reduls.sanmoku.Tagger.parse(item.title)) {
+    					String[] property = e.feature.split(",");
+    					String parse = property[0];
+    					if (parse.contains("–¼ŽŒ")) {
+    						keywords.add(e.surface);
+    					}
+    				}
+    				request.addKeywords(keywords);
     		        adView.loadAd(request);
     		        return adView;
     			}

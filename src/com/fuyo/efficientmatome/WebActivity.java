@@ -1,5 +1,8 @@
 package com.fuyo.efficientmatome;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
@@ -91,10 +94,19 @@ public class WebActivity extends Activity {
     		adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
             layout.addView(adView);
             AdRequest request = new AdRequest();
-            request.addKeyword("ì]êE");
-            request.addKeyword("ó∑çs");
-            request.addKeyword("job");
-            request.addKeyword("travel");
+			Set<String> keywords = new HashSet<String>();
+			keywords.add("job");
+			keywords.add("travel");
+			for (net.reduls.sanmoku.Morpheme e : net.reduls.sanmoku.Tagger.parse(title)) {
+				String[] property = e.feature.split(",");
+				String parse = property[0];
+				if (parse.contains("ñºéå")) {
+					keywords.add(e.surface);
+				}
+			}
+            keywords.add("ì]êE");
+            keywords.add("ó∑çs");
+            request.addKeywords(keywords);
 
             adView.loadAd(request);
     		
