@@ -200,14 +200,14 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		});
         ucat.execute(new String[]{});
 
-        adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
-        LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);
-        layout.addView(adView);
-        AdRequest request = new AdRequest();
-        request.addKeyword("travel");
-        request.addKeyword("job");
-        request.addKeyword("english");
-        adView.loadAd(request);
+//        adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
+//        LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);
+//        layout.addView(adView);
+//        AdRequest request = new AdRequest();
+//        request.addKeyword("travel");
+//        request.addKeyword("job");
+//        request.addKeyword("english");
+//        adView.loadAd(request);
     }
 	@Override
 	public void onDestroy() {
