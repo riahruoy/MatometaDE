@@ -132,6 +132,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				intent.putExtra("title", item.title);
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
+				intent.putExtra("nouns", item.nouns);
 				startActivity(intent);
 		    	overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
 			}
@@ -161,7 +162,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 
-				if (totalItemCount < firstVisibleItem + visibleItemCount + 20) {
+				if (totalItemCount < firstVisibleItem + visibleItemCount + 40) {
 					addtitionalReading();
 				}
 			}
@@ -228,7 +229,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 //    		return;
     	}
     	final int offset = data.size();
-    	final int LOADSIZE = 30;
+    	final int LOADSIZE = 10;
     	int[] loadIds = new int [LOADSIZE]; 
     	for (int i = 0; i + offset < itemIds.length && i < LOADSIZE; i++) {
     		loadIds[i] = itemIds[i + offset];
@@ -278,11 +279,13 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public boolean hasShown = false;
     	public int random;
     	public int time = 0;
+    	public String[] nouns;
     	public Item() {}
     	public static Item getFromLine(String line) {
     		Item item = new Item();
     		String[] column = line.split("\t");
     		item.id = Integer.valueOf(column[0]);
+    		Log.d("test", "linecount : " + column.length);
     		item.read = (Integer.valueOf(column[1]) > 0);
     		item.title = Html.fromHtml(column[2]).toString();
     		item.link = column[3];
@@ -291,14 +294,15 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		item.time = Integer.valueOf(column[6]);
     		item.content = "";
     		item.icon = null;
-    		if (column.length > 7) {
-    			if (column[7].length() > 0) {
-    				item.icon = Base64.decode(column[7], Base64.DEFAULT);
-    			} else {
-    				item.icon = null;
-    			}
-//    			item.content = Html.fromHtml(column[7]).toString();
+    		if (column.length == 8) {
+    			Log.d("column", line);
     		}
+    		if (column[7].length() > 1) {
+    			item.icon = Base64.decode(column[7], Base64.DEFAULT);
+    		} else {
+    			item.icon = null;
+    		}
+    		item.nouns = column[8].split(",");
     		item.random = (int)Math.floor(Math.random() * 10);
     		return item;
     	}
@@ -320,12 +324,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     				keywords.add("job");
     				keywords.add("travel");
     				Item item = (Item)getItem(position - 1);
-    				for (net.reduls.sanmoku.Morpheme e : net.reduls.sanmoku.Tagger.parse(item.title)) {
-    					String[] property = e.feature.split(",");
-    					String parse = property[0];
-    					if (parse.contains("–¼ŽŒ")) {
-    						keywords.add(e.surface);
-    					}
+    				for (String keyword : item.nouns) {
+   						keywords.add(keyword);
     				}
     		        AdRequest request = new AdRequest();
 
@@ -347,12 +347,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     				keywords.add("job");
     				keywords.add("travel");
     				Item item = (Item)getItem(position - 1);
-    				for (net.reduls.sanmoku.Morpheme e : net.reduls.sanmoku.Tagger.parse(item.title)) {
-    					String[] property = e.feature.split(",");
-    					String parse = property[0];
-    					if (parse.contains("–¼ŽŒ")) {
-    						keywords.add(e.surface);
-    					}
+    				for (String keyword : item.nouns) {
+   						keywords.add(keyword);
     				}
     				request.addKeywords(keywords);
     		        adView.loadAd(request);

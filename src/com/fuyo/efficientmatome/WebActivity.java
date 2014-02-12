@@ -41,6 +41,7 @@ public class WebActivity extends Activity {
 	private TimeMeasure time;
 	private String linkUrl;
 	private int articleId;
+	private String[] nouns;
 	private String uuid;
 	private double maxScroll;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/1910436460";
@@ -68,6 +69,7 @@ public class WebActivity extends Activity {
         	linkUrl = intent.getStringExtra("url");
     		String title = intent.getStringExtra("title");
     		articleId = intent.getIntExtra("articleId", -1);
+    		nouns = intent.getStringArrayExtra("nouns");
     		setTitle(title);
 //        	webView = (MyWebView)findViewById(R.id.webView);
     		setContentView(R.layout.activity_web);
@@ -97,12 +99,8 @@ public class WebActivity extends Activity {
 			Set<String> keywords = new HashSet<String>();
 			keywords.add("job");
 			keywords.add("travel");
-			for (net.reduls.sanmoku.Morpheme e : net.reduls.sanmoku.Tagger.parse(title)) {
-				String[] property = e.feature.split(",");
-				String parse = property[0];
-				if (parse.contains("ñºéå")) {
-					keywords.add(e.surface);
-				}
+			for (String keyword : nouns) {
+				keywords.add(keyword);
 			}
             keywords.add("ì]êE");
             keywords.add("ó∑çs");

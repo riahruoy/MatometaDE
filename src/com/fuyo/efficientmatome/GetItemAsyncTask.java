@@ -59,7 +59,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 		httpParams.setParameter(CoreConnectionPNames.SO_TIMEOUT, Integer.valueOf(30000));
 		HttpClient httpClient = new DefaultHttpClient(httpParams);
 
-		HttpPost httpPost = new HttpPost("http://matome.iijuf.net/_api.getItemsFromIds.php");
+		HttpPost httpPost = new HttpPost("http://matome.iijuf.net/_api.getItemsFromIdsV2.php");
 		List<NameValuePair> param = new ArrayList<NameValuePair>();
 		ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 	
