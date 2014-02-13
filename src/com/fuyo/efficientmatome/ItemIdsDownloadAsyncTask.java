@@ -1,6 +1,9 @@
 package com.fuyo.efficientmatome;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -8,8 +11,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 
+import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -35,6 +40,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.renderscript.RenderScript.RSErrorHandler;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 
 
@@ -67,7 +73,27 @@ public class ItemIdsDownloadAsyncTask extends AsyncTask<String, Integer, Integer
 					throws ClientProtocolException, IOException {
 				switch (response.getStatusLine().getStatusCode()) {
 				case HttpStatus.SC_OK:
-					String body = EntityUtils.toString(response.getEntity(), "UTF-8");
+					String body = "";
+					InputStream stream = null;
+					if (isGZipHttpResponse(response)) {
+						stream = new GZIPInputStream(response.getEntity().getContent());
+					} else {
+						stream = response.getEntity().getContent();
+					}
+					BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+					try {
+					    StringBuilder buf = new StringBuilder();
+					    String line;
+					    while ((line = reader.readLine()) != null) {
+					        buf.append(line + "\n");
+					    }
+					    body = buf.toString();
+					} finally {
+					    // レスポンスデータ（InputStream）を閉じる
+					    stream.close();
+					    reader.close();
+					}
+						
 					Log.d("upload", body);
 					resultBody = body;
 					resultStatus = 1;
@@ -76,6 +102,13 @@ public class ItemIdsDownloadAsyncTask extends AsyncTask<String, Integer, Integer
 					resultStatus = -1;
 					return "NG";
 				}
+			}
+			private boolean isGZipHttpResponse(HttpResponse response) {
+			    Header header = response.getEntity().getContentEncoding();
+			    if (header == null) return false;
+			    
+			    String value = header.getValue();
+			    return (!TextUtils.isEmpty(value) && value.contains("gzip"));
 			}
 				    	  
 		};
