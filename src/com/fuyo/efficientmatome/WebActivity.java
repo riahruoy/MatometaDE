@@ -79,6 +79,8 @@ public class WebActivity extends Activity {
             webView = new MyWebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
         	webView.getSettings().setBuiltInZoomControls(true);
+        	webView.getSettings().setLoadWithOverviewMode(true);
+        	webView.getSettings().setUseWideViewPort(true);
 
 
         	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
