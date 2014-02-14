@@ -1,6 +1,7 @@
 package com.fuyo.efficientmatome;
 
 import java.io.ByteArrayInputStream;
+import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -128,13 +129,45 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				data.get(adAdapter.toBasePosition(position)).read = true;
 				listView.invalidateViews();
 				Item item = (Item)listView.getItemAtPosition(position);
-				Intent intent = new Intent(LatestItem.this, WebActivity.class);
+				
+				uploadUnreadId(adAdapter.toBasePosition(position));
+
+			    Intent intent = new Intent(LatestItem.this, WebActivity.class);
 				intent.putExtra("title", item.title);
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
 				intent.putExtra("nouns", item.nouns);
 				startActivity(intent);
+
 		    	overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
+			}
+			private void uploadUnreadId(int basePosition) {
+				ArrayList<Integer> itemIds = new ArrayList<Integer>();
+				itemIds.add(data.get(basePosition).id);
+				for (int i = basePosition - 1; i >= 0; i--) {
+					if (data.get(i).read) break;
+					itemIds.add(data.get(i).id);
+				}
+				//uuid, read, itemids1, itemIds2,...
+				String[] paramKeys = new String[itemIds.size() + 2];
+				String[] paramValues = new String[itemIds.size() + 2];
+
+
+				paramKeys[0] = "uuid";
+				paramValues[0] = uuid;
+				paramKeys[1] = "read";
+				paramValues[1] = Integer.toString(data.get(basePosition).id);
+				
+				for (int i = 0; i < itemIds.size(); i++) {
+					paramKeys[i + 2] = "itemIds[]";
+					paramValues[i + 2] = Integer.toString(itemIds.get(i));
+				}
+			    Intent intentUpload = new Intent(LatestItem.this, LogUploader.class);
+			    intentUpload.putExtra("url", "http://matome.iijuf.net/_api.listScoreUploader.php");
+			    intentUpload.putExtra("paramKeys", paramKeys);
+			    intentUpload.putExtra("paramValues", paramValues);
+			    startService(intentUpload);
+				
 			}
 		});
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
