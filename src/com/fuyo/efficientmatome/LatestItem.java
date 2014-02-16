@@ -85,7 +85,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_READ = 2;
 	private static final int TYPE_SUGGEST = 100;	
 	private int getItemType = TYPE_SUGGEST;
-	private static final int AD_INTERVAL = 20;
+	private static final int AD_INTERVAL = 15;
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
@@ -116,6 +116,10 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
           }
 
         
+        final ActionBar bar = getActionBar();
+        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
+        bar.setListNavigationCallbacks(mSpinnerAdapter, this);
         
         listView.addFooterView(mFooter);
         adapter = new ItemAdapter();
@@ -202,10 +206,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			}
 		};
         listView.setOnScrollListener(scrollListener);
-        final ActionBar bar = getActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
-        bar.setListNavigationCallbacks(mSpinnerAdapter, this);
         UpdateCheckAsyncTask ucat = new UpdateCheckAsyncTask(this, versionCode, new UpdateCheckAsyncTask.UpdateCheckListener() {
 			
 			@Override
@@ -554,6 +554,10 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 	private void reloadDataSet() {
 
+		if (mGetItemTask != null) {
+			mGetItemTask.cancel(true);
+		}
+			
 		
 		ItemIdsDownloadAsyncTask task = new ItemIdsDownloadAsyncTask(this, uuid, getItemType, new ItemIdsDownloadAsyncTask.UploadEventListener() {
 			ProgressDialog dialog;
@@ -578,7 +582,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 				listView.setEnabled(false);
 				data.clear();//order is important
-//				itemIds = new int[]{};
+				itemIds = new int[]{};
 
 				dialog = new ProgressDialog(LatestItem.this);
 				dialog.setMessage("Loading...");
