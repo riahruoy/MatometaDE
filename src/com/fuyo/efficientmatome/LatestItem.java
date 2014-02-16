@@ -93,6 +93,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("matome", "onCreate is called");
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);
         mFooter = getLayoutInflater().inflate(R.layout.listview_footer, null);
@@ -194,8 +195,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
-
-				if (totalItemCount < firstVisibleItem + visibleItemCount + 40) {
+				Log.d("scroll", "onScroll called : totalItem " + totalItemCount + ", itemIds.length " + itemIds.length);
+				if (itemIds.length > totalItemCount && totalItemCount < firstVisibleItem + visibleItemCount + 40) {
 					addtitionalReading();
 				}
 			}
@@ -567,10 +568,18 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				for (int i = 0; i < strIds.length; i++) {
 					itemIds[i] = Integer.valueOf(strIds[i]);
 				}
+				listView.setEnabled(true);
+				adAdapter.notifyDataSetChanged();
+				listView.invalidateViews();
 			}
 			
 			@Override
 			public void onPreExecute() {
+
+				listView.setEnabled(false);
+				data.clear();//order is important
+//				itemIds = new int[]{};
+
 				dialog = new ProgressDialog(LatestItem.this);
 				dialog.setMessage("Loading...");
 				dialog.show();
@@ -584,30 +593,27 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			}
 		});
 		task.execute("");
+//		
+//		try {
+//			task.get(30, TimeUnit.SECONDS);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ExecutionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (TimeoutException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
-		try {
-			task.get(30, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		data.clear();//order is important
-		itemIds = new int[]{};
-		adAdapter.notifyDataSetChanged();
-		listView.invalidateViews();
 	}
 
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long itemId) {
 		//0: suggest, 1: all, 2: unread, 3:read
+        Log.d("matome", "onNavigationItemSelected is called");
 		switch (position) {
 		case 0:
 			getItemType = TYPE_SUGGEST;
