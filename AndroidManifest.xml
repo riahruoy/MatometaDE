@@ -21,7 +21,7 @@
          <activity
             android:name="com.fuyo.efficientmatome.LatestItem"
             android:label="@string/app_name" >
-            <intent-filter>
+            <intent-filter android:label="@string/app_name_intent">
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
