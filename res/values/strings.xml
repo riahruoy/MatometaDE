@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">まとめたDE</string>
-    <string name="app_name_intent">MDE</string>
+    <string name="app_name_intent">まとめたDE</string>
     <string name="action_toWeb">OpenBrowser</string>
     <string name="hello_world">Hello world!</string>
     <string-array name="action_list">
