@@ -48,6 +48,8 @@ import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -635,6 +637,25 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		reloadDataSet();
 		return true;
 	}
-	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.mainlistview_item, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+    	case R.id.action_toProfile:
+		    Intent intent = new Intent(LatestItem.this, ProfileActivity.class);
+			startActivity(intent);
+    		return true;
+    	}
+    	return false;
+    }
+
 
 }
