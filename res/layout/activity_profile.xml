@@ -24,85 +24,20 @@
                 android:text="興味のあるキーワード"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
+            <LinearLayout
+                android:id="@+id/topKeywordsLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
                 <TextView
                     android:id="@+id/topKeyword0"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_horizontal|center_vertical"
-                    android:text=""
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <TextView
-                    android:id="@+id/topKeyword1"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword2"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword3"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword4"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword5"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword6"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword7"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/topKeyword8"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-                <TextView
-                    android:id="@+id/topKeyword9"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </LinearLayout>
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="match_parent"
@@ -113,85 +48,20 @@
                 android:text="興味のないキーワード"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
+            <LinearLayout
+                android:id="@+id/hateKeywordsLinearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
                 <TextView
                     android:id="@+id/hateKeyword0"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_horizontal|center_vertical"
-                    android:text=""
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <TextView
-                    android:id="@+id/hateKeyword1"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword2"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword3"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword4"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword5"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword6"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword7"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <TextView
-                    android:id="@+id/hateKeyword8"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-                <TextView
-                    android:id="@+id/hateKeyword9"
-	                android:layout_width="match_parent"
-    	            android:layout_height="wrap_content"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text=""
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+            </LinearLayout>
                 
         </LinearLayout>
     </ScrollView>

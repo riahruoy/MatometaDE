@@ -9,14 +9,17 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ProfileActivity extends Activity {
-	private TextView[] topKeywords;
-	private TextView[] hateKeywords;
+	private LinearLayout topKeywordsList;
+	private LinearLayout hateKeywordsList;
 	private String uuid;
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,37 +35,13 @@ public class ProfileActivity extends Activity {
 	}
 	
 	private void initializeViews() {
-		final int KEYWORD_COUNT = 10;
-		topKeywords = new TextView[KEYWORD_COUNT];
-		topKeywords[0] = (TextView)findViewById(R.id.topKeyword0);
-		topKeywords[1] = (TextView)findViewById(R.id.topKeyword1);
-		topKeywords[2] = (TextView)findViewById(R.id.topKeyword2);
-		topKeywords[3] = (TextView)findViewById(R.id.topKeyword3);
-		topKeywords[4] = (TextView)findViewById(R.id.topKeyword4);
-		topKeywords[5] = (TextView)findViewById(R.id.topKeyword5);
-		topKeywords[6] = (TextView)findViewById(R.id.topKeyword6);
-		topKeywords[7] = (TextView)findViewById(R.id.topKeyword7);
-		topKeywords[8] = (TextView)findViewById(R.id.topKeyword8);
-		topKeywords[9] = (TextView)findViewById(R.id.topKeyword9);
-
-		hateKeywords = new TextView[KEYWORD_COUNT];
-		hateKeywords[0] = (TextView)findViewById(R.id.hateKeyword0);
-		hateKeywords[1] = (TextView)findViewById(R.id.hateKeyword1);
-		hateKeywords[2] = (TextView)findViewById(R.id.hateKeyword2);
-		hateKeywords[3] = (TextView)findViewById(R.id.hateKeyword3);
-		hateKeywords[4] = (TextView)findViewById(R.id.hateKeyword4);
-		hateKeywords[5] = (TextView)findViewById(R.id.hateKeyword5);
-		hateKeywords[6] = (TextView)findViewById(R.id.hateKeyword6);
-		hateKeywords[7] = (TextView)findViewById(R.id.hateKeyword7);
-		hateKeywords[8] = (TextView)findViewById(R.id.hateKeyword8);
-		hateKeywords[9] = (TextView)findViewById(R.id.hateKeyword9);
-
+		topKeywordsList = (LinearLayout)findViewById(R.id.topKeywordsLinearLayout);
+		hateKeywordsList = (LinearLayout)findViewById(R.id.hateKeywordsLinearLayout);
 	}
 	private void updateKeywords() {
 		final String url = "http://matome.iijuf.net/_api.getProfile.php";
 		ArrayList<String> keys = new ArrayList<String>();
 		ArrayList<String> values = new ArrayList<String>();
-		String uuid = "7dd714d8-51c5-4f3c-957a-783b2569b7fb";
 		keys.add("uuid");
 		values.add(uuid);
 		DownloadAsyncTask dat = new DownloadAsyncTask(this, url, keys.toArray(new String[keys.size()]), values.toArray(new String[values.size()]),
@@ -80,20 +59,23 @@ public class ProfileActivity extends Activity {
 						}
 						
 						String[] keywords = bodyArray[0].split("\t");
-						for (int i = 0; i < topKeywords.length; i++) {
-							if (i < keywords.length) {
-								topKeywords[i].setText(keywords[i]);
-							} else {
-								topKeywords[i].setText("");
-							}
+						topKeywordsList.removeAllViews();
+						for (String noun : keywords) {
+							TextView tv = new TextView(ProfileActivity.this);
+							tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+							tv.setGravity(Gravity.CENTER_HORIZONTAL);
+							tv.setText(noun);
+							topKeywordsList.addView(tv);
 						}
+
+						hateKeywordsList.removeAllViews();
 						String[] hates = bodyArray[1].split("\t");
-						for (int i = 0; i < hateKeywords.length; i++) {
-							if (i < hateKeywords.length) {
-								hateKeywords[i].setText(hates[i]);
-							} else {
-								hateKeywords[i].setText("");
-							}
+						for (String noun : hates) {
+							TextView tv = new TextView(ProfileActivity.this);
+							tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+							tv.setGravity(Gravity.CENTER_HORIZONTAL);
+							tv.setText(noun);
+							hateKeywordsList.addView(tv);
 						}
 					}
 					
