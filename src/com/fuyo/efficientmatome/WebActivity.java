@@ -1,5 +1,16 @@
 package com.fuyo.efficientmatome;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -89,7 +100,13 @@ public class WebActivity extends Activity {
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
         	layout.addView(webView, param);
-    		webView.loadUrl(linkUrl);
+        	String data = getFromCache(linkUrl);
+        	if (data.length() == 0) {
+        		downloadArticleAndLoad(linkUrl);
+        	} else {
+        		webView.loadDataWithBaseURL(linkUrl, data, "text/html", "UTF-8", null);
+        	}
+
 
     		progress = (ProgressBar)findViewById(R.id.view_actionbar_progress);
 
@@ -118,6 +135,80 @@ public class WebActivity extends Activity {
     		finish();
     	}
 
+    }
+    
+    private void downloadArticleBackground(final String url) {
+    	DownloadAsyncTask task = new DownloadAsyncTask(this, url, new String[]{}, new String[]{},
+    			new DownloadAsyncTask.DownloadEventListener() {
+					@Override
+					public void onSuccess(String body) {
+						writeToCache(url, body);
+					}
+					@Override
+					public void onPreExecute() {
+					}
+					@Override
+					public void onFailure() {
+					}
+				});
+    	task.execute(new String[]{});
+
+    }
+
+    
+    private void downloadArticleAndLoad(final String url) {
+    	DownloadAsyncTask task = new DownloadAsyncTask(this, url, new String[]{}, new String[]{},
+    			new DownloadAsyncTask.DownloadEventListener() {
+					@Override
+					public void onSuccess(String body) {
+						writeToCache(url, body);
+						webView.loadDataWithBaseURL(url, body,"text/html", "UTF-8", null);
+					}
+					@Override
+					public void onPreExecute() {
+					}
+					@Override
+					public void onFailure() {
+					}
+				});
+    	task.execute(new String[]{});
+    }
+    private void writeToCache(final String url, final String body) {
+    	try {
+			final String filename = URLEncoder.encode(url, "UTF-8");
+			OutputStream os = openFileOutput(filename, MODE_PRIVATE);
+			PrintWriter wirter = new PrintWriter(os);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+    }
+    private String getFromCache(final String url) {
+
+    	try {
+			final String filename = URLEncoder.encode(url, "UTF-8");
+	    	InputStream is = openFileInput(filename);
+	    	BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+	    	String str;
+	    	StringBuilder builder = new StringBuilder();
+	    	while ((str = reader.readLine()) != null) {
+	    		builder.append(str).append('\n');
+	    	}
+	    	reader.close();
+	    	is.close();
+	    	return builder.toString();
+		} catch (UnsupportedEncodingException e) {
+			return "";
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return "";
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		}
     }
 	@Override
 	public void onDestroy() {
