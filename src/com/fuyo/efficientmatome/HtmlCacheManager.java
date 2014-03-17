@@ -190,6 +190,21 @@ public class HtmlCacheManager {
     	Log.d("cache", "cache " + deleteCount + " files are deleted");
     	
     }
+    
+    public String getDetailMessage() {
+    	long size = 0;
+    	int count = 0;
+    	File cacheDir = context.getCacheDir();
+    	for (File file : cacheDir.listFiles()) {
+    		if (file.getName().startsWith("http")) {
+    			size += file.length();
+    			count++;
+    		}
+    	}
+    	String str = count + " files  " + Double.toString((double)size / 1000) + " KB";
+    	return str;
+    }
+    
     public void calcSize() {
     	long size = 0;
     	int count = 0;

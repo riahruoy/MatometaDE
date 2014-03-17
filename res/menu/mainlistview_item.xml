@@ -3,6 +3,9 @@
     <item
         android:id="@+id/action_toProfile"
         android:title="@string/action_toProfile"/>
+    <item
+        android:id="@+id/action_showCacheDetail"
+        android:title="@string/show_cache_detail"/>
     
 
 </menu>

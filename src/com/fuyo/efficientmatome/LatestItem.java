@@ -689,6 +689,25 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		    Intent intent = new Intent(LatestItem.this, ProfileActivity.class);
 			startActivity(intent);
     		return true;
+    	case R.id.action_showCacheDetail:
+    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    		builder.setTitle("About Cache");
+    		builder.setMessage(cacheManager.getDetailMessage());
+    		builder.setPositiveButton("キャッシュ全削除", new OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					cacheManager.deleteAllCache();
+				}
+			});
+    		builder.setNegativeButton("閉じる", new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+				}
+			});
+    		builder.setCancelable(true);
+    		builder.create().show();
+    		return true;
     	}
     	return false;
     }
