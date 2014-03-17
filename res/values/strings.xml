@@ -8,6 +8,7 @@
     <string name="action_toProfile">あなたの傾向</string>
     <string name="show_cache_detail">キャッシュについて</string>
     <string name="setting">設定</string>
+    <string name="reflesh">更新</string>
     <string-array name="action_list">
         <item>推薦</item>
         <item>全部</item>

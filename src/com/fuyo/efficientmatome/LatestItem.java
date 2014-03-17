@@ -709,6 +709,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		builder.setCancelable(true);
     		builder.create().show();
     		return true;
+    	case R.id.action_reflesh_list:
+    		reloadDataSet();
+    		return true;
     	}
     	return false;
     }
