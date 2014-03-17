@@ -201,7 +201,7 @@ public class HtmlCacheManager {
     			count++;
     		}
     	}
-    	String str = count + " files  " + Double.toString((double)size / 1000) + " KB";
+    	String str = count + " files  " + Double.toString((double)Math.round((double)size / 1024) / 1024) + " MB";
     	return str;
     }
     
