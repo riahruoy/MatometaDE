@@ -624,6 +624,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 				dialog = new ProgressDialog(LatestItem.this);
 				dialog.setMessage("Loading...");
+				dialog.setCancelable(false);
 				dialog.show();
 			}
 			
