@@ -127,7 +127,7 @@ public class HtmlCacheManager {
     	void onComplete(String body);
     }
     public void startBackgroundPrefetch(final String[] urls) {
-    	deleteCacheOneDayAgo();
+    	deleteCacheOneWeekAgo();
     	bgPrefetchTask = new TimerTask() {
 
 			@Override
@@ -175,13 +175,13 @@ public class HtmlCacheManager {
     		}
     	}
     }
-    public void deleteCacheOneDayAgo() {
+    public void deleteCacheOneWeekAgo() {
     	int deleteCount = 0;
     	File cacheDir = context.getCacheDir();
     	for (File file : cacheDir.listFiles()) {
     		if (file.getName().startsWith("http")) {
     			long last = file.lastModified();
-    			if (last + 24 * 3600 * 1000 < System.currentTimeMillis()) {
+    			if (last + 7 * 24 * 3600 * 1000 < System.currentTimeMillis()) {
     				file.delete();
     				deleteCount++;
     			}
