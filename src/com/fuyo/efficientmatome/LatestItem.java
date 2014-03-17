@@ -255,7 +255,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				
 			}
 		});
-        ucat.execute(new String[]{});
+//        ucat.execute(new String[]{});
 
 //        adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
 //        LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);

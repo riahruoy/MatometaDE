@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Timer;
@@ -201,7 +202,8 @@ public class HtmlCacheManager {
     			count++;
     		}
     	}
-    	String str = count + " files  " + Double.toString((double)Math.round((double)size / 1024) / 1024) + " MB";
+    	double mb = (double)Math.round((double)size / 1000) / 1000;
+    	String str = count + " files  " + mb + " MB";
     	return str;
     }
     
