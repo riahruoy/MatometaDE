@@ -146,7 +146,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				//following item urls
 				ArrayList<String> urls = new ArrayList<String>();
 				int basePosition = adAdapter.toBasePosition(position);
-				for (int i = 1; i + basePosition < itemIds.length && i < PREFETCH_COUNT; i++) {
+				for (int i = 1; i + basePosition < itemIds.length && i + basePosition < data.size() && i < PREFETCH_COUNT; i++) {
 					Item item2 = data.get(i + basePosition);
 					urls.add(item2.link);
 				}
