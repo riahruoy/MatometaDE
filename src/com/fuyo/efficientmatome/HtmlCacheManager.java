@@ -16,11 +16,14 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 public class HtmlCacheManager {
 	private final Context context;
@@ -54,13 +57,19 @@ public class HtmlCacheManager {
 			File cacheDir = context.getCacheDir();
 			File file = new File(cacheDir.getAbsolutePath(), filename);
 			FileOutputStream os = new FileOutputStream(file);
-			PrintWriter writer = new PrintWriter(new OutputStreamWriter(os));
+			GZIPOutputStream gzos = new GZIPOutputStream(os);
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(gzos));
 			writer.append(body);
 			writer.close();
+			gzos.close();
+			os.close();
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
@@ -92,14 +101,17 @@ public class HtmlCacheManager {
 			File cacheDir = context.getCacheDir();
 			File file = new File(cacheDir.getAbsolutePath(), filename);
 			FileInputStream is = new FileInputStream(file);
-	    	BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+			GZIPInputStream gzis = new GZIPInputStream(is);
+	    	BufferedReader reader = new BufferedReader(new InputStreamReader(gzis));
 	    	String str;
 	    	StringBuilder builder = new StringBuilder();
 	    	while ((str = reader.readLine()) != null) {
 	    		builder.append(str).append('\n');
 	    	}
 	    	reader.close();
+	    	gzis.close();
 	    	is.close();
+
 	    	return builder.toString();
 		} catch (UnsupportedEncodingException e) {
 			return "";
@@ -115,6 +127,7 @@ public class HtmlCacheManager {
     	void onComplete(String body);
     }
     public void startBackgroundPrefetch(final String[] urls) {
+    	deleteCacheOneDayAgo();
     	bgPrefetchTask = new TimerTask() {
 
 			@Override
@@ -123,6 +136,7 @@ public class HtmlCacheManager {
 				if (isDownloadServiceRunning()) {
 					return;
 				}
+				calcSize();
 				
 			    Intent intent = new Intent(context, CacheDownloadIntentService.class);
 			    for (int i = 0; i < urls.length; i++) {
@@ -152,5 +166,41 @@ public class HtmlCacheManager {
     		}
     	}
     	return false;
+    }
+    public void deleteAllCache() {
+    	File cacheDir = context.getCacheDir();
+    	for (File file : cacheDir.listFiles()) {
+    		if (file.getName().startsWith("http")) {
+    			file.delete();
+    		}
+    	}
+    }
+    public void deleteCacheOneDayAgo() {
+    	int deleteCount = 0;
+    	File cacheDir = context.getCacheDir();
+    	for (File file : cacheDir.listFiles()) {
+    		if (file.getName().startsWith("http")) {
+    			long last = file.lastModified();
+    			if (last + 24 * 3600 * 1000 < System.currentTimeMillis()) {
+    				file.delete();
+    				deleteCount++;
+    			}
+    		}
+    	}
+    	Log.d("cache", "cache " + deleteCount + " files are deleted");
+    	
+    }
+    public void calcSize() {
+    	long size = 0;
+    	int count = 0;
+    	File cacheDir = context.getCacheDir();
+    	for (File file : cacheDir.listFiles()) {
+    		if (file.getName().startsWith("http")) {
+    			size += file.length();
+    			count++;
+    		}
+    	}
+    	Log.d("cache", "cache size = " + Math.round((double)size / 1000 / 1000) + " MB  count = " + count);
+
     }
 }
