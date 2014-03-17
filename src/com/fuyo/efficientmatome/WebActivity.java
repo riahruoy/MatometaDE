@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -177,7 +178,9 @@ public class WebActivity extends Activity {
     	try {
 			final String filename = URLEncoder.encode(url, "UTF-8");
 			OutputStream os = openFileOutput(filename, MODE_PRIVATE);
-			PrintWriter wirter = new PrintWriter(os);
+			PrintWriter writer = new PrintWriter(new OutputStreamWriter(os));
+			writer.append(body);
+			writer.close();
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
