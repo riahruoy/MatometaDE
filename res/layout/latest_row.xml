@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingLeft="2dp"
+    android:paddingLeft="10dp"
     android:paddingRight="2dp"
-
+	android:id="@+id/baseLinearLayout"
     android:orientation="vertical" >
 
     
@@ -52,7 +52,16 @@
                 android:gravity="center_vertical"
                 android:text="time"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
-
+            <TextView
+                android:id="@+id/textViewCached"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#FF6666"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+            
             <TextView
                 android:id="@+id/textViewDate"
                 android:layout_width="120dp"

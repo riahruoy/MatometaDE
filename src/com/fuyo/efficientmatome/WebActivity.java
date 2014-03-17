@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fuyo.efficientmatome.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
@@ -62,11 +63,15 @@ public class WebActivity extends Activity {
 	private static final int THRESHOLD_X = 150;
 	private ProgressBar progress;
 	float scale;
+	private HtmlCacheManager cacheManager;
+	private String[] urls;
+	
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        cacheManager = new HtmlCacheManager(this);
 //        setContentView(R.layout.activity_web);
 
         maxScroll = 0;
@@ -82,6 +87,7 @@ public class WebActivity extends Activity {
     		String title = intent.getStringExtra("title");
     		articleId = intent.getIntExtra("articleId", -1);
     		nouns = intent.getStringArrayExtra("nouns");
+    		urls = intent.getStringArrayExtra("following_urls");
     		setTitle(title);
 //        	webView = (MyWebView)findViewById(R.id.webView);
     		setContentView(R.layout.activity_web);
@@ -101,13 +107,15 @@ public class WebActivity extends Activity {
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
         	layout.addView(webView, param);
-        	String data = getFromCache(linkUrl);
-        	if (data.length() == 0) {
-        		downloadArticleAndLoad(linkUrl);
-        	} else {
-        		webView.loadDataWithBaseURL(linkUrl, data, "text/html", "UTF-8", null);
-        	}
+        	cacheManager.get(linkUrl, new OnCompleteListener() {
+				
+				@Override
+				public void onComplete(String body) {
+		        	webView.loadDataWithBaseURL(linkUrl, body, "text/html", "UTF-8", null);
+				}
+			});
 
+        	
 
     		progress = (ProgressBar)findViewById(R.id.view_actionbar_progress);
 
@@ -138,81 +146,6 @@ public class WebActivity extends Activity {
 
     }
     
-    private void downloadArticleBackground(final String url) {
-    	DownloadAsyncTask task = new DownloadAsyncTask(this, url, new String[]{}, new String[]{},
-    			new DownloadAsyncTask.DownloadEventListener() {
-					@Override
-					public void onSuccess(String body) {
-						writeToCache(url, body);
-					}
-					@Override
-					public void onPreExecute() {
-					}
-					@Override
-					public void onFailure() {
-					}
-				});
-    	task.execute(new String[]{});
-
-    }
-
-    
-    private void downloadArticleAndLoad(final String url) {
-    	DownloadAsyncTask task = new DownloadAsyncTask(this, url, new String[]{}, new String[]{},
-    			new DownloadAsyncTask.DownloadEventListener() {
-					@Override
-					public void onSuccess(String body) {
-						writeToCache(url, body);
-						webView.loadDataWithBaseURL(url, body,"text/html", "UTF-8", null);
-					}
-					@Override
-					public void onPreExecute() {
-					}
-					@Override
-					public void onFailure() {
-					}
-				});
-    	task.execute(new String[]{});
-    }
-    private void writeToCache(final String url, final String body) {
-    	try {
-			final String filename = URLEncoder.encode(url, "UTF-8");
-			OutputStream os = openFileOutput(filename, MODE_PRIVATE);
-			PrintWriter writer = new PrintWriter(new OutputStreamWriter(os));
-			writer.append(body);
-			writer.close();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-    }
-    private String getFromCache(final String url) {
-
-    	try {
-			final String filename = URLEncoder.encode(url, "UTF-8");
-	    	InputStream is = openFileInput(filename);
-	    	BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-	    	String str;
-	    	StringBuilder builder = new StringBuilder();
-	    	while ((str = reader.readLine()) != null) {
-	    		builder.append(str).append('\n');
-	    	}
-	    	reader.close();
-	    	is.close();
-	    	return builder.toString();
-		} catch (UnsupportedEncodingException e) {
-			return "";
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return "";
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		}
-    }
 	@Override
 	public void onDestroy() {
 		if (adView != null) {
@@ -224,12 +157,14 @@ public class WebActivity extends Activity {
 		webView.setWebChromeClient(null);
 		webView.removeAllViews();
 		super.onDestroy();
-	}
+    	cacheManager.stopBackgroundPrefetch();
+    }
     
     @Override
     public void onPause() {
     	super.onPause();
     	time.stop();
+
     }
     
     @Override
@@ -345,6 +280,10 @@ public class WebActivity extends Activity {
     	@Override
     	public void onScaleChanged(WebView view, float oldScale, float newScale) {
     		scale = newScale;
+    	}
+    	@Override
+    	public void onPageFinished(WebView view, String url) {
+    		cacheManager.startBackgroundPrefetch(urls);
     	}
     }
     @Override

@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.fuyo.efficientmatome.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.Ad;
 import com.google.ads.AdListener;
 import com.google.ads.AdRequest;
@@ -88,13 +89,16 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_SUGGEST = 100;	
 	private int getItemType = TYPE_SUGGEST;
 	private static final int AD_INTERVAL = 15;
+	private static final int PREFETCH_COUNT = 40;
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
+	private HtmlCacheManager cacheManager;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        cacheManager = new HtmlCacheManager(this);
         Log.d("matome", "onCreate is called");
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);
@@ -135,18 +139,32 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 				data.get(adAdapter.toBasePosition(position)).read = true;
 				listView.invalidateViews();
-				Item item = (Item)listView.getItemAtPosition(position);
+				final Item item = (Item)listView.getItemAtPosition(position);
 				
 				uploadUnreadId(adAdapter.toBasePosition(position));
 
+				//following item urls
+				ArrayList<String> urls = new ArrayList<String>();
+				int basePosition = adAdapter.toBasePosition(position);
+				for (int i = 1; i + basePosition < itemIds.length && i < PREFETCH_COUNT; i++) {
+					Item item2 = data.get(i + basePosition);
+					urls.add(item2.link);
+				}
+				
+
+				
+				
+				
 			    Intent intent = new Intent(LatestItem.this, WebActivity.class);
 				intent.putExtra("title", item.title);
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
 				intent.putExtra("nouns", item.nouns);
+				intent.putExtra("following_urls", urls.toArray(new String[urls.size()]));
 				startActivity(intent);
-
 		    	overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
+
+
 			}
 			private void uploadUnreadId(int basePosition) {
 				ArrayList<Integer> itemIds = new ArrayList<Integer>();
@@ -202,7 +220,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 				Log.d("scroll", "onScroll called : totalItem " + totalItemCount + ", itemIds.length " + itemIds.length);
-				if (itemIds.length > totalItemCount && totalItemCount < firstVisibleItem + visibleItemCount + 40) {
+				if (itemIds.length > totalItemCount && totalItemCount < firstVisibleItem + visibleItemCount + PREFETCH_COUNT) {
 					addtitionalReading();
 				}
 			}
@@ -252,6 +270,11 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	public void onDestroy() {
 //		adView.destroy();
 		super.onDestroy();
+	}
+	@Override
+	public void onResume() {
+		super.onResume();
+		listView.invalidateViews();
 	}
     
     private void addtitionalReading() {
@@ -374,7 +397,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     				float density = activity.getResources().getDisplayMetrics().density;
     		        int height = Math.round(AdSize.BANNER.getHeight() * density);
     		        AbsListView.LayoutParams params = new AbsListView.LayoutParams(
-    		            AbsListView.LayoutParams.FILL_PARENT,
+    		            AbsListView.LayoutParams.MATCH_PARENT,
     		            height);
     		        adView.setLayoutParams(params);
     		        AdRequest request = new AdRequest();
@@ -491,14 +514,27 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			TextView textViewDate = (TextView)convertView.findViewById(R.id.textViewDate);
 			TextView textViewSite = (TextView)convertView.findViewById(R.id.textViewSite);
 			TextView textViewTime = (TextView)convertView.findViewById(R.id.textViewTime);
+			TextView textViewCached = (TextView)convertView.findViewById(R.id.textViewCached);
 //			TextView textContent = (TextView)convertView.findViewById(R.id.textContent);
+			
+			LinearLayout baseLL = (LinearLayout)convertView.findViewById(R.id.baseLinearLayout);
+
+
 
 			LinearLayout llRow = (LinearLayout)convertView.findViewById(R.id.linearLayoutRow);
 			Item item = data.get(position);
 			textViewTitle.setText(item.title);
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
-			
+
+			if (cacheManager.isCached(item.link)) {
+				baseLL.setBackgroundColor(Color.BLACK);
+				textViewCached.setText("Cached");
+			} else {
+				//dusky green
+				baseLL.setBackgroundColor(Color.rgb(8, 16, 15));
+				textViewCached.setText("");
+			}
 			ImageView imgViewIcon = (ImageView)llRow.findViewById(IMGVIEW_ID);
 			if (imgViewIcon != null) {
 				llRow.removeView(imgViewIcon);

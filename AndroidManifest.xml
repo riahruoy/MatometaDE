@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.fuyo.efficientmatome"
-    android:versionCode="16"
-    android:versionName="1.6" >
+    android:versionCode="18"
+    android:versionName="1.8" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -31,7 +31,8 @@
             </intent-filter>
         </activity>
         <service android:name="LogUploader"></service>
-    	<activity android:name="com.google.ads.AdActivity"
+        <service android:name="CacheDownloadIntentService"></service>
+        	<activity android:name="com.google.ads.AdActivity"
     	    android:screenOrientation="portrait"
               android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
         </application>
