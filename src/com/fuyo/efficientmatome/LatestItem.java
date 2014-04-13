@@ -232,8 +232,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			public void onNewVersionFound(final String apkName) {
 				new AlertDialog.Builder(LatestItem.this)
 					.setTitle("New Version Found")
-					.setMessage("新しいバージョン:" + apkName + "が見つかりました。ダウンロードしますか")
-					.setPositiveButton("ダウンロード", new OnClickListener() {
+					.setMessage("譁ｰ縺励＞繝舌�ｼ繧ｸ繝ｧ繝ｳ縺瑚ｦ九▽縺九ｊ縺ｾ縺励◆:" + apkName + "")
+					.setPositiveButton("download", new OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -244,7 +244,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 						}
 
 					})
-					.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+					.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -694,13 +694,13 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		AlertDialog.Builder builder = new AlertDialog.Builder(this);
     		builder.setTitle("About Cache");
     		builder.setMessage(cacheManager.getDetailMessage());
-    		builder.setPositiveButton("キャッシュ全削除", new OnClickListener() {
+    		builder.setPositiveButton("delete all", new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					cacheManager.deleteAllCache();
 				}
 			});
-    		builder.setNegativeButton("閉じる", new OnClickListener() {
+    		builder.setNegativeButton("close", new OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

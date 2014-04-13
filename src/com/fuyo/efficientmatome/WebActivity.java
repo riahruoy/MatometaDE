@@ -111,7 +111,7 @@ public class WebActivity extends Activity {
 				
 				@Override
 				public void onComplete(String body) {
-		        	webView.loadDataWithBaseURL(linkUrl, body, "text/html", "UTF-8", null);
+					webView.loadDataWithBaseURL(linkUrl, body, "text/html", "UTF-8", null);
 				}
 			});
 
@@ -132,8 +132,8 @@ public class WebActivity extends Activity {
 			for (String keyword : nouns) {
 				keywords.add(keyword);
 			}
-            keywords.add("ì]êE");
-            keywords.add("ó∑çs");
+            keywords.add("ÊóÖË°å");
+            keywords.add("Ëª¢ËÅ∑");
             request.addKeywords(keywords);
 
             adView.loadAd(request);
