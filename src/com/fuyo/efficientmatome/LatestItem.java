@@ -127,7 +127,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
         bar.setListNavigationCallbacks(mSpinnerAdapter, this);
         
-        listView.addFooterView(mFooter);
+        listView.addFooterView(mFooter, null, false);
         adapter = new ItemAdapter();
         adAdapter = new ItemAdAdapter(this, adapter);
         listView.setAdapter(adAdapter);
@@ -137,6 +137,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 					long id) {
 
 
+				
 				data.get(adAdapter.toBasePosition(position)).read = true;
 				listView.invalidateViews();
 				final Item item = (Item)listView.getItemAtPosition(position);
@@ -220,7 +221,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
 				Log.d("scroll", "onScroll called : totalItem " + totalItemCount + ", itemIds.length " + itemIds.length);
-				if (itemIds.length > totalItemCount && totalItemCount < firstVisibleItem + visibleItemCount + PREFETCH_COUNT) {
+				if (itemIds.length > data.size() && totalItemCount < firstVisibleItem + visibleItemCount + PREFETCH_COUNT) {
 					addtitionalReading();
 				}
 			}
@@ -309,6 +310,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
 				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
+				if (data.size() >= itemIds.length) {
+					listView.removeFooterView(mFooter);
+				}
 			}
 			
 			@Override
