@@ -311,7 +311,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
 				if (data.size() >= itemIds.length) {
-					listView.removeFooterView(mFooter);
+					mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
 				}
 			}
 			
@@ -598,8 +598,9 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 		if (mGetItemTask != null) {
 			mGetItemTask.cancel(true);
+			mGetItemTask = null;
 		}
-			
+		mFooter.findViewById(R.id.spinner).setVisibility(View.VISIBLE);
 		
 		ItemIdsDownloadAsyncTask task = new ItemIdsDownloadAsyncTask(this, uuid, getItemType, new ItemIdsDownloadAsyncTask.UploadEventListener() {
 			ProgressDialog dialog;
@@ -625,6 +626,8 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				listView.setEnabled(false);
 				data.clear();//order is important
 				itemIds = new int[]{};
+				adAdapter.notifyDataSetChanged();
+				listView.invalidateViews();
 
 				dialog = new ProgressDialog(LatestItem.this);
 				dialog.setMessage("Loading...");
