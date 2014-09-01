@@ -164,7 +164,7 @@ public class WebActivity extends Activity {
     public void onPause() {
     	super.onPause();
     	time.stop();
-
+    	cacheManager.stopBackgroundPrefetch();
     }
     
     @Override
