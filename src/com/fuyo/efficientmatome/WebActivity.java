@@ -107,7 +107,7 @@ public class WebActivity extends Activity {
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
         	layout.addView(webView, param);
-        	cacheManager.get(linkUrl, new OnCompleteListener() {
+        	cacheManager.getCachedArticle(linkUrl, new OnCompleteListener() {
 				
 				@Override
 				public void onComplete(String body) {

@@ -83,7 +83,12 @@ public class HtmlCacheManager {
 		} 
     }
 
-    public void get(final String url, final OnCompleteListener listener) {
+    /**
+     * getArticle from Cached file. If no cache, it'll download from the internet
+     * @param url
+     * @param listener
+     */
+    public void getCachedArticle(final String url, final OnCompleteListener listener) {
     	String data = getFromCache(url);
     	if (data.length() == 0) {
     		downloadArticleBackground(url, listener);
