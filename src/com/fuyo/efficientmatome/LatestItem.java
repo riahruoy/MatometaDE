@@ -98,7 +98,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        cacheManager = new HtmlCacheManager(this);
+        cacheManager = HtmlCacheManager.getInstance(this);
         Log.d("matome", "onCreate is called");
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);

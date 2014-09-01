@@ -71,7 +71,7 @@ public class WebActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        cacheManager = new HtmlCacheManager(this);
+        cacheManager = HtmlCacheManager.getInstance(this);
 //        setContentView(R.layout.activity_web);
 
         maxScroll = 0;

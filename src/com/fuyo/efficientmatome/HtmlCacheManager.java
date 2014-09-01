@@ -27,10 +27,17 @@ import android.content.Intent;
 import android.util.Log;
 
 public class HtmlCacheManager {
+	private static HtmlCacheManager singleton = null;
 	private final Context context;
 	private TimerTask bgPrefetchTask = null;
 	private Timer bgPrefetchTimer = null;
-	public HtmlCacheManager (final Context context) {
+	static HtmlCacheManager getInstance (final Context context) {
+		if (singleton == null) {
+			singleton = new HtmlCacheManager(context);
+		}
+		return singleton; 
+	}
+	private HtmlCacheManager (final Context context) {
 		this.context = context;
 	}
 	public void downloadArticleBackground(final String url, final OnCompleteListener listener) {

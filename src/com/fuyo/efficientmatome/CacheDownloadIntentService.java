@@ -18,7 +18,7 @@ public class CacheDownloadIntentService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		final String url = intent.getStringExtra("url");
-		HtmlCacheManager cacheManager = new HtmlCacheManager(this);
+		HtmlCacheManager cacheManager = HtmlCacheManager.getInstance(this);
 		cacheManager.downloadArticleBackground(url, new HtmlCacheManager.OnCompleteListener() {
 			@Override
 			public void onComplete(String body) {
