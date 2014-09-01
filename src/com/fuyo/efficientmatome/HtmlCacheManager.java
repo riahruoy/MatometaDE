@@ -17,6 +17,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -162,7 +163,7 @@ public class HtmlCacheManager {
 			}
     	};
     	bgPrefetchTimer = new Timer();
-    	bgPrefetchTimer.schedule(bgPrefetchTask, 0, 2000);
+    	bgPrefetchTimer.schedule(bgPrefetchTask, TimeUnit.SECONDS.toMillis(2));
     }
     public void stopBackgroundPrefetch() {
     	if (bgPrefetchTimer != null) {
