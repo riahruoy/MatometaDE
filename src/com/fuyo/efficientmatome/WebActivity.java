@@ -64,7 +64,7 @@ public class WebActivity extends Activity {
 	private ProgressBar progress;
 	float scale;
 	private HtmlCacheManager cacheManager;
-	private String[] urls;
+	private String[] urls = new String[] {};
 	
 	
     @Override
@@ -157,7 +157,6 @@ public class WebActivity extends Activity {
 		webView.setWebChromeClient(null);
 		webView.removeAllViews();
 		super.onDestroy();
-    	cacheManager.stopBackgroundPrefetch();
     }
     
     @Override
@@ -170,7 +169,9 @@ public class WebActivity extends Activity {
     @Override
     public void onResume() {
     	super.onResume();
+    	cacheManager.startBackgroundPrefetch(urls);
     	time.start();
+    	
     }
     
     
@@ -266,6 +267,8 @@ public class WebActivity extends Activity {
     	@Override
     	public void onPageStarted(WebView view, String url, Bitmap favicon) {
     		super.onPageStarted(view, url, favicon);
+    		//TODO check if onPageStarted is called before loading? and onPageFinished is called after loading completion? 
+    		cacheManager.stopBackgroundPrefetch();
     		if (!url.contains(linkUrl) && !url.contains(".jpg")) {
 
     			time.stop();

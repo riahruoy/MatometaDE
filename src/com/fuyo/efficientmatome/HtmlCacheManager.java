@@ -25,13 +25,15 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class HtmlCacheManager {
 	private static HtmlCacheManager singleton = null;
 	private final Context context;
-	private TimerTask bgPrefetchTask = null;
-	private Timer bgPrefetchTimer = null;
+	private boolean bgPrefetchStopFlag = true; 
+	private static final long BG_TIMEOUT = 5 * 60 * 1000;
+	private AsyncTask<String[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
 		if (singleton == null) {
 			singleton = new HtmlCacheManager(context);
@@ -41,7 +43,7 @@ public class HtmlCacheManager {
 	private HtmlCacheManager (final Context context) {
 		this.context = context;
 	}
-	public void downloadArticleBackground(final String url, final OnCompleteListener listener) {
+	private void downloadArticle(final String url, final OnCompleteListener listener) {
     	DownloadAsyncTask task = new DownloadAsyncTask(context, url, new String[]{}, new String[]{},
     			new DownloadAsyncTask.DownloadEventListener() {
 					@Override
@@ -91,8 +93,9 @@ public class HtmlCacheManager {
      */
     public void getCachedArticle(final String url, final OnCompleteListener listener) {
     	String data = getFromCache(url);
+    	//TODO how to treat if bgPrefetch is downloading the same url?
     	if (data.length() == 0) {
-    		downloadArticleBackground(url, listener);
+    		downloadArticle(url, listener);
     	} else {
     		listener.onComplete(data);
     	}
@@ -142,44 +145,50 @@ public class HtmlCacheManager {
     }
     public void startBackgroundPrefetch(final String[] urls) {
     	deleteCacheOneWeekAgo();
-    	bgPrefetchTask = new TimerTask() {
-
-			@Override
-			public void run() {
-				//check service is running or not
-				if (isDownloadServiceRunning()) {
-					return;
-				}
-				calcSize();
-				
-			    Intent intent = new Intent(context, CacheDownloadIntentService.class);
-			    for (int i = 0; i < urls.length; i++) {
-			    	if (getFromCache(urls[i]).length() == 0) {
-					    intent.putExtra("url", urls[i]);
-					    context.startService(intent);
-			    		break;
-			    	}
-			    }
-			}
-    	};
-    	bgPrefetchTimer = new Timer();
-    	bgPrefetchTimer.schedule(bgPrefetchTask, TimeUnit.SECONDS.toMillis(2));
+    	
+		Log.d("prefetch", "prefetch: started");
+    	bgPrefetchStopFlag = false;
+    	if (bgPrefetchTask2 == null) {
+    		bgPrefetchTask2 = new AsyncTask<String[], Void, Void>() {
+    			
+    			@Override
+    			protected Void doInBackground(String[]... params) {
+    				long start = System.currentTimeMillis();
+    				String[] urls = params[0];
+    				for (int i = 0; i < urls.length; i++) {
+    					String body = DownloadAsyncTask.download(urls[i], new String[]{}, new String[]{});
+    					writeToCache(urls[i], body);
+    					Log.d("prefetch", "prefetch: complete " + urls[i]);
+    	
+    					
+    					if (bgPrefetchStopFlag) {
+    						Log.d("prefetch", "prefetch: is cancelled with flag");
+    						return null;
+    					}
+    					long now = System.currentTimeMillis();
+    					// over 5 minutes
+    					if (now - start > BG_TIMEOUT) {
+    						Log.d("prefetch", "prefetch: is cancelled with timeout");
+    						return null;
+    					}
+    				}
+    				return null;
+    			}
+    			
+    		};
+    		bgPrefetchTask2.execute(urls);
+    	} else {
+    		Log.d("prefetch", "prefetch: but skipped");
+    	}
     }
     public void stopBackgroundPrefetch() {
-    	if (bgPrefetchTimer != null) {
-    		bgPrefetchTimer.cancel();
-        	bgPrefetchTimer = null;
+    	bgPrefetchStopFlag = true;
+    	if (bgPrefetchTask2 != null) {
+    		bgPrefetchTask2.cancel(true);
+    		bgPrefetchTask2 = null;
     	}
-    }
-    private boolean isDownloadServiceRunning() {
-    	ActivityManager manager = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-    	List<RunningServiceInfo> services = manager.getRunningServices(Integer.MAX_VALUE);
-    	for (RunningServiceInfo info :services) {
-    		if (info.service.getClassName().equals("CacheDownloadIntentService")) {
-    			return true;
-    		}
-    	}
-    	return false;
+		Log.d("prefetch", "prefetch: stopped");
+    	
     }
     public void deleteAllCache() {
     	File cacheDir = context.getCacheDir();
