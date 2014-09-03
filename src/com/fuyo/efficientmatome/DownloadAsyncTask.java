@@ -68,6 +68,18 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 	  
 	@Override
 	protected Integer doInBackground(String... params) {
+		String result = download(url, keys, values);
+		if (result.length() > 0) {
+			resultBody = result;
+			resultStatus = 1;
+		} else {
+			resultStatus = 0;
+		}
+		return 0;
+	}
+	
+	public static String download(final String url, final String[] keys, final String[] values) {
+
 		HttpParams httpParams = new BasicHttpParams();
 		httpParams.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, Integer.valueOf(1000));
 		httpParams.setParameter(CoreConnectionPNames.SO_TIMEOUT, Integer.valueOf(30000));
@@ -99,18 +111,15 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 					    }
 					    body = buf.toString();
 					} finally {
-					    // ƒŒƒXƒ|ƒ“ƒXƒf[ƒ^iInputStreamj‚ğ•Â‚¶‚é
+					    // ï¿½ï¿½ï¿½Xï¿½|ï¿½ï¿½ï¿½Xï¿½fï¿½[ï¿½^ï¿½iInputStreamï¿½jï¿½ï¿½Â‚ï¿½ï¿½ï¿½
 					    stream.close();
 					    reader.close();
 					}
 						
 					Log.d("upload", body);
-					resultBody = body;
-					resultStatus = 1;
 					return body;
 				default:
-					resultStatus = -1;
-					return "NG";
+					return "";
 				}
 			}
 			private boolean isGZipHttpResponse(HttpResponse response) {
@@ -131,8 +140,9 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		String result = "";
 		try {
-			httpClient.execute(httpPost, responseHandler);
+			result = httpClient.execute(httpPost, responseHandler);
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -140,9 +150,8 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 		}
 		httpClient.getConnectionManager().shutdown();
 		param = null;
-		return 0;
+		return result;
 	}
-
 	@Override
 	protected void onPostExecute(Integer result) {
 		if (resultStatus == 1) {
