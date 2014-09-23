@@ -1,4 +1,4 @@
-package com.fuyo.efficientmatome;
+package com.fuyo.mde;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

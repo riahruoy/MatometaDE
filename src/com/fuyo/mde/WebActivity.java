@@ -1,4 +1,4 @@
-package com.fuyo.efficientmatome;
+package com.fuyo.mde;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,8 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.fuyo.efficientmatome.HtmlCacheManager.OnCompleteListener;
+import com.fuyo.mde.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fuyo.efficientmatome"
+    package="com.fuyo.mde"
     android:versionCode="24"
     android:versionName="1.13" >
 
@@ -14,14 +14,14 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.fuyo.efficientmatome.WebActivity"
+            android:name="com.fuyo.mde.WebActivity"
             android:label="@string/app_name"
             android:windowContentOverlay="@null" ></activity>
         <activity
-            android:name="com.fuyo.efficientmatome.ProfileActivity"
+            android:name="com.fuyo.mde.ProfileActivity"
             android:label="@string/app_name" ></activity>
         <activity
-            android:name="com.fuyo.efficientmatome.LatestItem"
+            android:name="com.fuyo.mde.LatestItem"
             android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter android:label="@string/app_name_intent">

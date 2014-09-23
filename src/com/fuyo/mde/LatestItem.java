@@ -1,4 +1,4 @@
-package com.fuyo.efficientmatome;
+package com.fuyo.mde;
 
 import java.io.ByteArrayInputStream;
 import java.security.acl.LastOwnerException;
@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.fuyo.efficientmatome.HtmlCacheManager.OnCompleteListener;
+import com.fuyo.mde.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.Ad;
 import com.google.ads.AdListener;
 import com.google.ads.AdRequest;

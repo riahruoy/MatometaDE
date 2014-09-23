@@ -1,4 +1,4 @@
-package com.fuyo.efficientmatome;
+package com.fuyo.mde;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

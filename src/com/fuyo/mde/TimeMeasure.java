@@ -1,4 +1,4 @@
-package com.fuyo.efficientmatome;
+package com.fuyo.mde;
 
 public class TimeMeasure {
 	private long startTime;

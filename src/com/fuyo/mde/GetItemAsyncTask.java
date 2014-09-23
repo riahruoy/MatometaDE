@@ -1,4 +1,4 @@
-package com.fuyo.efficientmatome;
+package com.fuyo.mde;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -92,7 +92,7 @@ public class GetItemAsyncTask extends AsyncTask<String, Integer, Integer> {
 					    }
 					    body = buf.toString();
 					} finally {
-					    // ƒŒƒXƒ|ƒ“ƒXƒf[ƒ^iInputStreamj‚ğ•Â‚¶‚é
+					    // ï¿½ï¿½ï¿½Xï¿½|ï¿½ï¿½ï¿½Xï¿½fï¿½[ï¿½^ï¿½iInputStreamï¿½jï¿½ï¿½Â‚ï¿½ï¿½ï¿½
 					    stream.close();
 					    reader.close();
 					}
