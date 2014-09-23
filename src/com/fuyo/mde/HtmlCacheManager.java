@@ -54,6 +54,7 @@ public class HtmlCacheManager {
 	private static HtmlCacheManager singleton = null;
 	private final Context context;
 	private boolean bgPrefetchStopFlag = true; 
+	private static final String DIR_NAME = "html";
 	private static final long BG_TIMEOUT = 5 * 60 * 1000;
 	private AsyncTask<int[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
@@ -107,7 +108,7 @@ public class HtmlCacheManager {
 
     }
     private void writeToCache(final int itemId, final byte[] body) {
-		String cacheDirPath = context.getCacheDir().getAbsolutePath();
+		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
 		//TODO download picture with client, use picUrl newUrl table
     	ZipInputStream in = null;
     	ZipEntry zipEntry = null;
@@ -165,12 +166,12 @@ public class HtmlCacheManager {
     	}
     }
     private String getLocalPath (final int itemId) {
-   		String cacheDirPath = context.getCacheDir().getAbsolutePath();
+   		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
    		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
     	return "file://"+file.getAbsolutePath();
     }
     public boolean isCached(final int itemId) {
-   		String cacheDirPath = context.getCacheDir().getAbsolutePath();
+   		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
    		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
    		return file.exists();
     }
@@ -230,12 +231,17 @@ public class HtmlCacheManager {
     	
     }
     public void deleteAllCache() {
-    	File cacheDir = context.getCacheDir();
+    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME);
     	for (File file : cacheDir.listFiles()) {
-    		if (file.getName().startsWith("http")) {
-    			file.delete();
-    		}
+    		deleteCache(Integer.valueOf(file.getName()));
     	}
+    }
+    private void deleteCache(final int itemId) {
+    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME+"/"+itemId);
+    	for (File file : cacheDir.listFiles()) {
+   			file.delete();
+    	}
+    	cacheDir.delete();
     }
     public void deleteCacheOneWeekAgo() {
     	//TODO
@@ -244,14 +250,16 @@ public class HtmlCacheManager {
     public String getDetailMessage() {
     	long size = 0;
     	int count = 0;
-    	File cacheDir = context.getCacheDir();
-    	for (File file : cacheDir.listFiles()) {
-   			size += file.length();
+    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME);
+    	for (File dir : cacheDir.listFiles()) {
    			count++;
+    		for (File file : dir.listFiles()) {
+	   			size += file.length();
 
+    		}
     	}
     	double mb = (double)Math.round((double)size / 1000) / 1000;
-    	String str = count + " files  " + mb + " MB";
+    	String str = count + " articles  " + mb + " MB";
     	return str;
     }
     
