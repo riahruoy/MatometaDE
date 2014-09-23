@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.fuyo.mde.DownloadAsyncTask.DownloadEventListener;
 import com.fuyo.mde.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.Ad;
 import com.google.ads.AdListener;
@@ -77,6 +76,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	protected ItemAdapter adapter = null;
 	protected ItemAdAdapter adAdapter = null;
 	protected int[] itemIds = new int[]{};
+	protected GetItemAsyncTask mGetItemTask = null;
 	protected String uuid = "testUIDD";
 	static final String KEY_UUID = "uuid";
 	static final String KEY_DEFAULT_TYPE = "default_type";
@@ -286,8 +286,16 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	}
     
     private void addtitionalReading() {
+    	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
+    		mGetItemTask.cancel(true);
+    		mGetItemTask=null;
+    		Log.d("loading", "itemTask is cancelled");
+
+//    		return;
+    	}
     	if (itemIds.length == 0) {
-    		return;
+    		Log.d("loading", "itemIds.length == 0");
+//    		return;
     	}
     	final int offset = data.size();
     	int LOADSIZE = 10;
@@ -295,34 +303,91 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	for (int i = 0; i + offset < itemIds.length && i < LOADSIZE; i++) {
     		loadIds[i] = itemIds[i + offset];
     	}
-    	detailCacheManager.getCachedItemIds(uuid, loadIds, new DownloadEventListener() {
+    	
+    	
+    	//for debug
+    	boolean fullCached = true;
+    	for (int i = 0; i < loadIds.length; i++) {
+    		if (!detailCacheManager.isCached(loadIds[i])) {
+    			fullCached = false;
+    			break;
+    		}
+    	}
+    	if (fullCached) {
+    		String body = "";
+    		for (int i = 0; i < loadIds.length; i++) {
+    			body += detailCacheManager.readFromCache(loadIds[i]) + "\n";
+    		}
+			String[] lines = body.split("\n");
+			for (int i = 0; i < lines.length; i++) {
+				if (lines[i].indexOf("\t") == -1) {
+					continue;
+				}
+				String line = lines[i].trim();
+				Item item = Item.getFromLine(line);
+				detailCacheManager.writeToCache(item.id, line);
+				data.add(item);
+			}
+    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
+    		runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					adAdapter.notifyDataSetChanged();
+					listView.invalidateViews();
+				}
+    		});
+			if (data.size() >= itemIds.length) {
+				mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+			}
+			return;
+    	}
+//    	if (detailCacheManager.isCached(loadIds[0])) {
+//    		String line = detailCacheManager.readFromCache(loadIds[0]);
+//			Item item = Item.getFromLine(line);
+//			data.add(item);
+//    		Log.d("loading", "cached finished : " + offset + " -> " + data.size());
+//    		
+//			adAdapter.notifyDataSetChanged();
+//			listView.invalidateViews();
+//			if (data.size() >= itemIds.length) {
+//				mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+//			}
+//    		return;
+//    	}
+//    	
+    	mGetItemTask = new GetItemAsyncTask(this, uuid, loadIds, new GetItemAsyncTask.UploadEventListener() {
 			
 			@Override
-			public void onSuccess(String line) {
-				data.add(Item.getFromLine(line));
+			public void onSuccess(String body) {
+				String[] lines = body.split("\n");
+				for (int i = 0; i < lines.length; i++) {
+					if (lines[i].indexOf("\t") == -1) {
+						continue;
+					}
+					String line = lines[i].trim();
+					Item item = Item.getFromLine(line);
+					detailCacheManager.writeToCache(item.id, line);
+					data.add(item);
+				}
 	    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
 				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
-
 				if (data.size() >= itemIds.length) {
 					mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
 				}
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			public void onPreExecute() {
-				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onFailure() {
-				// TODO Auto-generated method stub
-				
+
 			}
 		});
+    	mGetItemTask.execute("");
     }
 
     
@@ -480,6 +545,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		private int toBasePosition(int position) {
 			return position - adCount(position);
 		}
+		
 		private int adCount(int position) {
 			return (int)Math.floor((position + 1) / AD_INTERVAL);
 		}
@@ -592,7 +658,11 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     }
 
 	private void reloadDataSet() {
-		detailCacheManager.cancel();
+
+		if (mGetItemTask != null) {
+			mGetItemTask.cancel(true);
+			mGetItemTask = null;
+		}
 		mFooter.findViewById(R.id.spinner).setVisibility(View.VISIBLE);
 		
 		ItemIdsDownloadAsyncTask task = new ItemIdsDownloadAsyncTask(this, uuid, getItemType, new ItemIdsDownloadAsyncTask.UploadEventListener() {
@@ -611,6 +681,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				listView.setEnabled(true);
 				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
+
 			}
 			
 			@Override

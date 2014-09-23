@@ -24,7 +24,6 @@ public class DetailCacheManager {
 	private static DetailCacheManager singleton = null;
 	private final String CACHE_DIR = "/headline/";
 	private final Context context;
-	protected GetItemAsyncTask mGetItemTask = null;
 	static DetailCacheManager getInstance(final Context context) {
 		if (singleton == null) {
 			singleton = new DetailCacheManager(context);
@@ -34,52 +33,8 @@ public class DetailCacheManager {
 	private DetailCacheManager (final Context context) {
 		this.context = context;
 	}
-	public void getCachedItemIds(final String uuid, final int[] loadIds, final DownloadEventListener listener) {
-		ArrayList<Integer> toBeDownloadedIdList = new ArrayList<Integer>();
-		for (int i = 0; i < loadIds.length; i++) {
-			if (isCached(loadIds[i])) {
-				listener.onSuccess(readFromCache(loadIds[i]));
-			} else {
-				toBeDownloadedIdList.add(loadIds[i]);
-			}
-		}
-		if (toBeDownloadedIdList.size() == 0) return;
-		int[] toBeDownloadedIds = new int[toBeDownloadedIdList.size()];
-		for (int i = 0; i < toBeDownloadedIdList.size(); i++) {
-			toBeDownloadedIds[i] = toBeDownloadedIdList.get(i);
-		}
-    	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
-    		mGetItemTask.cancel(true);
-    		Log.d("loading", "itemTask is cancelled");
-//    		return;
-    	}
 
-    	mGetItemTask = new GetItemAsyncTask(context, uuid, toBeDownloadedIds, new GetItemAsyncTask.UploadEventListener() {
-			@Override
-			public void onSuccess(String body) {
-				String[] lines = body.split("\n");
-				for (int i = 0; i < lines.length; i++) {
-					if (lines[i].indexOf("\t") == -1) {
-						continue;
-					}
-					String line = lines[i].trim();
-					String[] column = line.split("\t");
-					writeToCache(Integer.valueOf(column[0]), line);
-					listener.onSuccess(line);
-				}
-			}
-			@Override
-			public void onPreExecute() {
-			}
-			@Override
-			public void onFailure() {
-			}
-		});
-    	mGetItemTask.execute("");
-
-
-	}
-	private void writeToCache(final int itemId, final String data) {
+	public void writeToCache(final int itemId, final String data) {
 		String filepath = context.getCacheDir() + CACHE_DIR + itemId;
 		File file = new File(filepath);
 		file.getParentFile().mkdirs();
@@ -95,7 +50,7 @@ public class DetailCacheManager {
 			e.printStackTrace();
 		}
 	}
-	private String readFromCache(final int itemId) {
+	public String readFromCache(final int itemId) {
 		String line = null;
 		String filepath = context.getCacheDir() + CACHE_DIR + itemId;
 		File file = new File(filepath);
@@ -119,9 +74,5 @@ public class DetailCacheManager {
 		return file.exists();
 	}
 	public void cancel() {
-		if (mGetItemTask != null) {
-			mGetItemTask.cancel(true);
-			mGetItemTask = null;
-		}
 	}
 }
