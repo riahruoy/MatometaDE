@@ -235,15 +235,15 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         UpdateCheckAsyncTask ucat = new UpdateCheckAsyncTask(this, versionCode, new UpdateCheckAsyncTask.UpdateCheckListener() {
 			
 			@Override
-			public void onNewVersionFound(final String apkName) {
+			public void onNewVersionFound(final int apkVersion, final String apkName) {
 				new AlertDialog.Builder(LatestItem.this)
 					.setTitle("New Version Found")
-					.setMessage("新しいバージョンが見つかりました:" + apkName + "")
+					.setMessage("新しいバージョンが見つかりました:" + apkVersion + "")
 					.setPositiveButton("download", new OnClickListener() {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							Uri uri = Uri.parse("http://matome.iijuf.net/apk/" + apkName);
+							Uri uri = Uri.parse(apkName);
 							Intent i = new Intent(Intent.ACTION_VIEW, uri);
 							startActivity(i);
 							finish();
@@ -261,7 +261,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				
 			}
 		});
-//        ucat.execute(new String[]{});
+        ucat.execute(new String[]{});
 
 //        adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
 //        LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);

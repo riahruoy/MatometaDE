@@ -80,11 +80,11 @@ public class UpdateCheckAsyncTask extends AsyncTask<String, Integer, String> {
 		  }
 //		  if (latestVersion)
 		  if (latestVersion > currentVersion) {
-			  updateCheckListener.onNewVersionFound(latestApkName);
+			  updateCheckListener.onNewVersionFound(latestVersion, latestApkName);
 		  }
 	  }
 	  
 	  public static interface UpdateCheckListener {
-		  void onNewVersionFound(String apkName);
+		  void onNewVersionFound(int version, String apkName);
 	  }
 }
