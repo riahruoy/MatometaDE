@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.fuyo.mde.DownloadAsyncTask.DownloadEventListener;
 import com.fuyo.mde.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.Ad;
 import com.google.ads.AdListener;
@@ -76,7 +77,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	protected ItemAdapter adapter = null;
 	protected ItemAdAdapter adAdapter = null;
 	protected int[] itemIds = new int[]{};
-	protected GetItemAsyncTask mGetItemTask = null;
 	protected String uuid = "testUIDD";
 	static final String KEY_UUID = "uuid";
 	static final String KEY_DEFAULT_TYPE = "default_type";
@@ -93,12 +93,14 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
 	private HtmlCacheManager cacheManager;
+	private DetailCacheManager detailCacheManager;
 	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         cacheManager = HtmlCacheManager.getInstance(this);
+        detailCacheManager = DetailCacheManager.getInstance(this);
         Log.d("matome", "onCreate is called");
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);
@@ -284,53 +286,43 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	}
     
     private void addtitionalReading() {
-    	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
-    		mGetItemTask.cancel(true);
-    		Log.d("loading", "itemTask is cancelled");
-//    		return;
-    	}
     	if (itemIds.length == 0) {
-    		Log.d("loading", "itemIds.length == 0");
-//    		return;
+    		return;
     	}
     	final int offset = data.size();
-    	int LOADSIZE = Math.min(10, Math.max(offset, 1));
+    	int LOADSIZE = 10;
     	int[] loadIds = new int [LOADSIZE]; 
     	for (int i = 0; i + offset < itemIds.length && i < LOADSIZE; i++) {
     		loadIds[i] = itemIds[i + offset];
     	}
-    	mGetItemTask = new GetItemAsyncTask(this, uuid, loadIds, new GetItemAsyncTask.UploadEventListener() {
+    	detailCacheManager.getCachedItemIds(uuid, loadIds, new DownloadEventListener() {
 			
 			@Override
-			public void onSuccess(String body) {
-				String[] lines = body.split("\n");
-				for (int i = 0; i < lines.length; i++) {
-					if (lines[i].indexOf("\t") == -1) {
-						continue;
-					}
-					String line = lines[i].trim();
-					
-					data.add(Item.getFromLine(line));
-				}
+			public void onSuccess(String line) {
+				data.add(Item.getFromLine(line));
 	    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
 				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
+
 				if (data.size() >= itemIds.length) {
 					mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
 				}
+				// TODO Auto-generated method stub
+				
 			}
 			
 			@Override
 			public void onPreExecute() {
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void onFailure() {
-
+				// TODO Auto-generated method stub
+				
 			}
 		});
-    	mGetItemTask.execute("");
     }
 
     
@@ -600,11 +592,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     }
 
 	private void reloadDataSet() {
-
-		if (mGetItemTask != null) {
-			mGetItemTask.cancel(true);
-			mGetItemTask = null;
-		}
+		detailCacheManager.cancel();
 		mFooter.findViewById(R.id.spinner).setVisibility(View.VISIBLE);
 		
 		ItemIdsDownloadAsyncTask task = new ItemIdsDownloadAsyncTask(this, uuid, getItemType, new ItemIdsDownloadAsyncTask.UploadEventListener() {
