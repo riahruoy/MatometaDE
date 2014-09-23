@@ -64,7 +64,7 @@ public class WebActivity extends Activity {
 	private ProgressBar progress;
 	float scale;
 	private HtmlCacheManager cacheManager;
-	private String[] urls = new String[] {};
+	private int[] followingItemIds = new int[]{};
 	
 	
     @Override
@@ -87,7 +87,10 @@ public class WebActivity extends Activity {
     		String title = intent.getStringExtra("title");
     		articleId = intent.getIntExtra("articleId", -1);
     		nouns = intent.getStringArrayExtra("nouns");
-    		urls = intent.getStringArrayExtra("following_urls");
+    		followingItemIds = intent.getIntArrayExtra("followingItemIds");
+    		
+
+    		
     		setTitle(title);
 //        	webView = (MyWebView)findViewById(R.id.webView);
     		setContentView(R.layout.activity_web);
@@ -96,10 +99,11 @@ public class WebActivity extends Activity {
             
             webView = new MyWebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
-        	webView.getSettings().setBuiltInZoomControls(true);
+//        	webView.getSettings().setBuiltInZoomControls(true);
         	webView.getSettings().setLoadWithOverviewMode(true);
         	webView.getSettings().setUseWideViewPort(true);
         	webView.setVerticalScrollbarOverlay(true);
+//        	webView.setInitialScale(100);
 
 
 
@@ -107,11 +111,12 @@ public class WebActivity extends Activity {
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
         	layout.addView(webView, param);
-        	cacheManager.getCachedArticle(linkUrl, new OnCompleteListener() {
+        	cacheManager.getCachedArticle(articleId, new OnCompleteListener() {
 				
 				@Override
-				public void onComplete(String body) {
-					webView.loadDataWithBaseURL(linkUrl, body, "text/html", "UTF-8", null);
+				public void onComplete(String url) {
+					//webView.loadDataWithBaseURL(linkUrl, body, "text/html", "UTF-8", null);
+					webView.loadUrl(url);
 				}
 			});
 
@@ -169,7 +174,7 @@ public class WebActivity extends Activity {
     @Override
     public void onResume() {
     	super.onResume();
-    	cacheManager.startBackgroundPrefetch(urls);
+    	cacheManager.startBackgroundPrefetch(followingItemIds);
     	time.start();
     	
     }
@@ -285,7 +290,7 @@ public class WebActivity extends Activity {
     	}
     	@Override
     	public void onPageFinished(WebView view, String url) {
-    		cacheManager.startBackgroundPrefetch(urls);
+    		cacheManager.startBackgroundPrefetch(followingItemIds);
     	}
     }
     @Override

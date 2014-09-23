@@ -145,13 +145,18 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				uploadUnreadId(adAdapter.toBasePosition(position));
 
 				//following item urls
-				ArrayList<String> urls = new ArrayList<String>();
+				ArrayList<Integer> followingItemIdsInteger = new ArrayList<Integer>();
 				int basePosition = adAdapter.toBasePosition(position);
 				for (int i = 1; i + basePosition < itemIds.length && i + basePosition < data.size() && i < PREFETCH_COUNT; i++) {
 					Item item2 = data.get(i + basePosition);
-					urls.add(item2.link);
+					followingItemIdsInteger.add(item2.id);
 				}
 				
+				//convert to int array
+				int[] followingItemIds = new int[followingItemIdsInteger.size()];
+				for (int i = 0; i < followingItemIdsInteger.size(); i++) {
+					followingItemIds[i] = followingItemIdsInteger.get(i);
+				}
 
 				
 				
@@ -161,7 +166,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
 				intent.putExtra("nouns", item.nouns);
-				intent.putExtra("following_urls", urls.toArray(new String[urls.size()]));
+				intent.putExtra("followingItemIds", followingItemIds);
 				startActivity(intent);
 		    	overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
 
@@ -531,7 +536,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
 
-			if (cacheManager.isCached(item.link)) {
+			if (cacheManager.isCached(item.id)) {
 				baseLL.setBackgroundColor(Color.BLACK);
 				textViewCached.setText("Cached");
 			} else {
