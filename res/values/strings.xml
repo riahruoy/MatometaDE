@@ -10,8 +10,8 @@
     <string name="setting">設定</string>
     <string name="reflesh">更新</string>
     <string-array name="action_list">
-        <item>推薦</item>
         <item>全部</item>
+        <item>推薦</item>
         <item>未読</item>
     </string-array>
 

@@ -87,7 +87,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_UNREAD = 1;
 	private static final int TYPE_READ = 2;
 	private static final int TYPE_SUGGEST = 100;	
-	private int getItemType = TYPE_SUGGEST;
+	private int getItemType = TYPE_ALL;
 	private static final int AD_INTERVAL = 15;
 	private static final int PREFETCH_COUNT = 40;
 	private int versionCode = 0;
@@ -294,7 +294,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 //    		return;
     	}
     	final int offset = data.size();
-    	final int LOADSIZE = 10;
+    	int LOADSIZE = Math.min(10, Math.max(offset, 1));
     	int[] loadIds = new int [LOADSIZE]; 
     	for (int i = 0; i + offset < itemIds.length && i < LOADSIZE; i++) {
     		loadIds[i] = itemIds[i + offset];
@@ -671,10 +671,10 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
         Log.d("matome", "onNavigationItemSelected is called");
 		switch (position) {
 		case 0:
-			getItemType = TYPE_SUGGEST;
+			getItemType = TYPE_ALL;
 			break;
 		case 1:
-			getItemType = TYPE_ALL;
+			getItemType = TYPE_SUGGEST;
 			break;
 		case 2:
 			getItemType = TYPE_UNREAD;
