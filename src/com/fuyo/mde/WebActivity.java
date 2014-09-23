@@ -181,13 +181,8 @@ public class WebActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
     	if (keyCode == KeyEvent.KEYCODE_BACK) {
-    		if (webView.canGoBack() && !webView.getUrl().equals(linkUrl)) {
-    			if (webView.canGoBackOrForward(-2)) {
-    				webView.goBack();
-    			} else {
-    				webView.loadUrl(linkUrl);
-    				time.start();
-    			}
+    		if (webView.canGoBack()) {
+   				webView.goBack();
     		} else {
 //    			Toast.makeText(WebActivity.this, "upload", Toast.LENGTH_SHORT).show();
     			finish();
