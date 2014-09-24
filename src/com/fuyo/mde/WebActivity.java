@@ -98,7 +98,7 @@ public class WebActivity extends Activity {
             
             webView = new MyWebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
-        	webView.getSettings().setBuiltInZoomControls(true);
+//        	webView.getSettings().setBuiltInZoomControls(true);
         	webView.getSettings().setUseWideViewPort(true);
         	webView.setVerticalScrollbarOverlay(true);
 //        	webView.setInitialScale(100);
