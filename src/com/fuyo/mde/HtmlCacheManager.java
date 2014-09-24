@@ -149,19 +149,22 @@ public class HtmlCacheManager {
     public void getCachedArticle(final int itemId, final OnCompleteListener listener) {
     	//TODO how to treat if bgPrefetch is downloading the same url?
     	if (!isCached(itemId)) {
-    		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void> (){
-				@Override
-				protected Void doInBackground(Void... params) {
-					downloadArticle(itemId);
-					return null;
-				}
-				@Override
-				protected void onPostExecute(Void result) {
-					listener.onComplete(getLocalPath(itemId));
-				}
-    		};
-    		task.execute();
+    		Log.d("HtmlCache", "cache not found for itemId=" + itemId);
+    		listener.onComplete("http://matome.iijuf.net/function.createData.php?siteId=0&itemId=" + itemId);
+//    		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void> (){
+//				@Override
+//				protected Void doInBackground(Void... params) {
+//					downloadArticle(itemId);
+//					return null;
+//				}
+//				@Override
+//				protected void onPostExecute(Void result) {
+//					listener.onComplete(getLocalPath(itemId));
+//				}
+//    		};
+//    		task.execute();
     	} else {
+    		Log.d("HtmlCache", "cache hit");
     		listener.onComplete(getLocalPath(itemId));
     	}
     }
