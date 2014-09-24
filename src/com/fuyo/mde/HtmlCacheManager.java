@@ -46,13 +46,16 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class HtmlCacheManager {
 	private static HtmlCacheManager singleton = null;
 	private final Context context;
+	private final SharedPreferences sharedPref;
 	private boolean bgPrefetchStopFlag = true; 
 	private static final String DIR_NAME = "html";
 	private static final long BG_TIMEOUT = 5 * 60 * 1000;
@@ -65,6 +68,7 @@ public class HtmlCacheManager {
 	}
 	private HtmlCacheManager (final Context context) {
 		this.context = context;
+		sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 	private static byte[] download(final String url) {
 
@@ -185,8 +189,9 @@ public class HtmlCacheManager {
     	void onComplete(String localPath);
     }
     public void startBackgroundPrefetch(final int[] itemIds) {
+    	if (!sharedPref.getBoolean("pref_checkbox_prefetch", true)) return;
     	deleteCacheOneWeekAgo();
-    	
+    	if (itemIds.length == 0) return;
 		Log.d("prefetch", "prefetch: started");
     	bgPrefetchStopFlag = false;
     	if (bgPrefetchTask2 == null) {

@@ -14,5 +14,7 @@
         <item>推薦</item>
         <item>未読</item>
     </string-array>
+    <string name="pref_check_prefetch">次の記事の読み込みを行う</string>
+    <string name="pref_check_prefetch_summary">バックグラウンドで次の記事の読み込みを行います</string>
 
 </resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+ 	<PreferenceCategory android:title="@string/setting">
+		<CheckBoxPreference
+			android:key="pref_checkbox_prefetch"
+			android:title="@string/pref_check_prefetch"
+			android:summary="@string/pref_check_prefetch_summary"
+			android:defaultValue="true" />
+	</PreferenceCategory>
+</PreferenceScreen>

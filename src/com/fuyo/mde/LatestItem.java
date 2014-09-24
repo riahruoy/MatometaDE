@@ -790,6 +790,10 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	case R.id.action_reflesh_list:
     		reloadDataSet();
     		return true;
+    	case R.id.action_setting:
+    		Intent prefIntent = new Intent(this, MyPreferenceActivity.class);
+    		startActivity(prefIntent);
+    		return true;
     	}
     	return false;
     }
