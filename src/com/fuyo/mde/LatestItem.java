@@ -146,6 +146,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				final Item item = (Item)listView.getItemAtPosition(position);
 				
 				uploadUnreadId(adAdapter.toBasePosition(position));
+				detailCacheManager.updateRead(item.id);
 
 				//following item urls
 				ArrayList<Integer> followingItemIdsInteger = new ArrayList<Integer>();

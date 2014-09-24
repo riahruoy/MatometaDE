@@ -68,6 +68,19 @@ public class DetailCacheManager {
 		}
 		return line;
 	}
+	public void updateRead(final int itemId) {
+		String str = readFromCache(itemId);
+		String[] columns = str.split("\t");
+		columns[1] = "1";
+		String line = "";
+		for (int i = 0; i < columns.length; i++) {
+			if (i != 0) {
+				line += "\t";				
+			}
+			line += columns[i];
+		}
+		writeToCache(itemId, line);
+	}
 	public boolean isCached(final int itemId) {
 		String filepath = context.getCacheDir() + CACHE_DIR + itemId;
 		File file = new File(filepath);
