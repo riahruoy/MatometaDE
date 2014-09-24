@@ -25,7 +25,7 @@
             android:name="com.fuyo.mde.MyPreferenceActivity"
             android:label="@string/app_name" ></activity>
         <activity
-            android:name="com.fuyo.mde.LatestItem"
+            android:name="com.fuyo.mde.ItemListActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter android:label="@string/app_name_intent">

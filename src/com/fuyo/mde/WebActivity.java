@@ -72,11 +72,10 @@ public class WebActivity extends Activity {
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         cacheManager = HtmlCacheManager.getInstance(this);
         MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
-//        setContentView(R.layout.activity_web);
 
         maxScroll = 0;
         scale = 1;
-        uuid = sharedPref.getString(LatestItem.KEY_UUID, "none");
+        uuid = sharedPref.getString(ItemListActivity.KEY_UUID, "none");
     	time = new TimeMeasure();
 
     	
@@ -92,7 +91,6 @@ public class WebActivity extends Activity {
 
     		
     		setTitle(title);
-//        	webView = (MyWebView)findViewById(R.id.webView);
     		setContentView(R.layout.activity_web);
             LinearLayout layout = (LinearLayout)findViewById(R.id.WebLinearLayout);
 
@@ -114,7 +112,6 @@ public class WebActivity extends Activity {
 				
 				@Override
 				public void onComplete(String url) {
-					//webView.loadDataWithBaseURL(linkUrl, body, "text/html", "UTF-8", null);
 					webView.loadUrl(url);
 				}
 			});
@@ -185,7 +182,6 @@ public class WebActivity extends Activity {
     		if (webView.canGoBack()) {
    				webView.goBack();
     		} else {
-//    			Toast.makeText(WebActivity.this, "upload", Toast.LENGTH_SHORT).show();
     			finish();
     		}
     		return true;
@@ -266,16 +262,12 @@ public class WebActivity extends Activity {
     	@Override
     	public void onPageStarted(WebView view, String url, Bitmap favicon) {
     		super.onPageStarted(view, url, favicon);
-    		//TODO check if onPageStarted is called before loading? and onPageFinished is called after loading completion? 
     		cacheManager.stopBackgroundPrefetch();
     		if (!url.contains(linkUrl) && !url.contains(".jpg")) {
 
     			time.stop();
-//    			Toast.makeText(WebActivity.this, "stop", Toast.LENGTH_SHORT).show();
     		} else {
-    			//support page2 or picture
     			time.start();
-//    			Toast.makeText(WebActivity.this, "start", Toast.LENGTH_SHORT).show();
     		}
     	}
     	@Override

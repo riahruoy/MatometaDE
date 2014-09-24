@@ -111,7 +111,6 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 					    }
 					    body = buf.toString();
 					} finally {
-					    // ���X�|���X�f�[�^�iInputStream�j�����
 					    stream.close();
 					    reader.close();
 					}

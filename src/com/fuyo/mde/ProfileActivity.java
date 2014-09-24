@@ -26,7 +26,7 @@ public class ProfileActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-    	uuid = sharedPref.getString(LatestItem.KEY_UUID, "testUUID");
+    	uuid = sharedPref.getString(ItemListActivity.KEY_UUID, "testUUID");
 
 		setContentView(R.layout.activity_profile);
         initializeViews();

@@ -69,7 +69,7 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class LatestItem extends Activity implements ActionBar.OnNavigationListener{
+public class ItemListActivity extends Activity implements ActionBar.OnNavigationListener{
 	protected ListView listView = null;
 	protected static final int IMGVIEW_ID = 0x7f190000;
 	protected View mFooter = null;
@@ -166,7 +166,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				
 				
 				
-			    Intent intent = new Intent(LatestItem.this, WebActivity.class);
+			    Intent intent = new Intent(ItemListActivity.this, WebActivity.class);
 				intent.putExtra("title", item.title);
 				intent.putExtra("url", item.link);
 				intent.putExtra("articleId", item.id);
@@ -198,7 +198,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 					paramKeys[i + 2] = "itemIds[]";
 					paramValues[i + 2] = Integer.toString(itemIds.get(i));
 				}
-			    Intent intentUpload = new Intent(LatestItem.this, LogUploader.class);
+			    Intent intentUpload = new Intent(ItemListActivity.this, LogUploader.class);
 			    intentUpload.putExtra("url", "http://matome.iijuf.net/_api.listScoreUploader.php");
 			    intentUpload.putExtra("paramKeys", paramKeys);
 			    intentUpload.putExtra("paramValues", paramValues);
@@ -215,7 +215,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				Item item = (Item)listView.getItemAtPosition(position);
 				StringBuilder sb = new StringBuilder();
 				sb.append("id : ").append(item.id).append('\n');
-				new AlertDialog.Builder(LatestItem.this)
+				new AlertDialog.Builder(ItemListActivity.this)
 				.setTitle("debug")
 				.setMessage(sb.toString())
 				.show();
@@ -241,9 +241,10 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			
 			@Override
 			public void onNewVersionFound(final int apkVersion, final String apkName) {
-				new AlertDialog.Builder(LatestItem.this)
+				String newVersionMessage = getResources().getString(R.string.new_version_found);
+				new AlertDialog.Builder(ItemListActivity.this)
 					.setTitle("New Version Found")
-					.setMessage("新しいバージョンが見つかりました:" + apkVersion + "")
+					.setMessage(newVersionMessage + ":" + apkVersion + "")
 					.setPositiveButton("download", new OnClickListener() {
 						
 						@Override
@@ -268,14 +269,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 		});
         ucat.execute(new String[]{});
 
-//        adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT_ID);
-//        LinearLayout layout = (LinearLayout)findViewById(R.id.LatestItemLayout);
-//        layout.addView(adView);
-//        AdRequest request = new AdRequest();
-//        request.addKeyword("travel");
-//        request.addKeyword("job");
-//        request.addKeyword("english");
-//        adView.loadAd(request);
     }
 	@Override
 	public void onDestroy() {
@@ -351,20 +344,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     		task.execute();
 			return;
     	}
-//    	if (detailCacheManager.isCached(loadIds[0])) {
-//    		String line = detailCacheManager.readFromCache(loadIds[0]);
-//			Item item = Item.getFromLine(line);
-//			data.add(item);
-//    		Log.d("loading", "cached finished : " + offset + " -> " + data.size());
-//    		
-//			adAdapter.notifyDataSetChanged();
-//			listView.invalidateViews();
-//			if (data.size() >= itemIds.length) {
-//				mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
-//			}
-//    		return;
-//    	}
-//    	
     	mGetItemTask = new GetItemAsyncTask(this, uuid, loadIds, new GetItemAsyncTask.UploadEventListener() {
 			
 			@Override
@@ -402,7 +381,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
     
     private static class Item {
-//    	private static final SimpleDateFormat sdfTime = new SimpleDateFormat("");
     	public int id = -1;
     	public String title = "";
     	public String link = "";
@@ -412,7 +390,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	public byte[] icon;
     	public boolean read = false;
     	public boolean hasShown = false;
-    	public int random;
     	public int time = 0;
     	public String[] nouns;
     	public Item() {}
@@ -592,7 +569,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			TextView textViewSite = (TextView)convertView.findViewById(R.id.textViewSite);
 			TextView textViewTime = (TextView)convertView.findViewById(R.id.textViewTime);
 			TextView textViewCached = (TextView)convertView.findViewById(R.id.textViewCached);
-//			TextView textContent = (TextView)convertView.findViewById(R.id.textContent);
 			
 			LinearLayout baseLL = (LinearLayout)convertView.findViewById(R.id.baseLinearLayout);
 
@@ -618,7 +594,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			}
 			
 			if (item.icon != null) {
-				imgViewIcon = new ImageView(LatestItem.this);
+				imgViewIcon = new ImageView(ItemListActivity.this);
 				imgViewIcon.setId(IMGVIEW_ID);
 
 //				imgViewIcon.setBackgroundColor(Color.DKGRAY);
@@ -635,10 +611,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			}
 
 
-			
-//			final int QUOTE_SIZE = 100;
-//			String content = item.content.length() > QUOTE_SIZE ? item.content.substring(0, QUOTE_SIZE - 1) : item.content;
-//			textContent.setText(content);
 			
 
 			String timeStr = "";
@@ -658,7 +630,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				textViewTime.setTextColor(Color.GRAY);
 			}
 			if (!item.hasShown) { 
-				Animation anim = AnimationUtils.loadAnimation(LatestItem.this, R.anim.item_motion);
+				Animation anim = AnimationUtils.loadAnimation(ItemListActivity.this, R.anim.item_motion);
 				convertView.startAnimation(anim);
 				item.hasShown = true;
 			}
@@ -727,7 +699,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				adAdapter.notifyDataSetChanged();
 				listView.invalidateViews();
 
-				dialog = new ProgressDialog(LatestItem.this);
+				dialog = new ProgressDialog(ItemListActivity.this);
 				dialog.setMessage("Loading...");
 				dialog.setCancelable(false);
 				dialog.show();
@@ -741,19 +713,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			}
 		});
 		task.execute("");
-//		
-//		try {
-//			task.get(30, TimeUnit.SECONDS);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (ExecutionException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (TimeoutException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		
 	}
 
@@ -791,7 +750,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     public boolean onOptionsItemSelected(MenuItem item) {
     	switch(item.getItemId()) {
     	case R.id.action_toProfile:
-		    Intent intent = new Intent(LatestItem.this, ProfileActivity.class);
+		    Intent intent = new Intent(ItemListActivity.this, ProfileActivity.class);
 			startActivity(intent);
     		return true;
     	case R.id.action_showCacheDetail:
