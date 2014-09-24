@@ -56,7 +56,7 @@ public class WebActivity extends Activity {
 	private String[] nouns;
 	private String uuid;
 	private double maxScroll;
-	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/1910436460";
+	private String MY_AD_UNIT_ID;
 	private AdView adView = null;
 	private static final int THRESHOLD_ANGLE = 15;
 	private static final int THRESHOLD_X = 150;
@@ -71,6 +71,7 @@ public class WebActivity extends Activity {
         super.onCreate(savedInstanceState);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         cacheManager = HtmlCacheManager.getInstance(this);
+        MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
 //        setContentView(R.layout.activity_web);
 
         maxScroll = 0;

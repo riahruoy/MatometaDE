@@ -95,11 +95,12 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	SpinnerAdapter mSpinnerAdapter;
 	private HtmlCacheManager cacheManager;
 	private DetailCacheManager detailCacheManager;
-	private static final String MY_AD_UNIT_ID = "ca-app-pub-1661412607542997/3526770464";
+	private String MY_AD_UNIT_ID;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
         cacheManager = HtmlCacheManager.getInstance(this);
         detailCacheManager = DetailCacheManager.getInstance(this);
         Log.d("matome", "onCreate is called");
