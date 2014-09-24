@@ -325,20 +325,27 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 				}
 				String line = lines[i].trim();
 				Item item = Item.getFromLine(line);
-				detailCacheManager.writeToCache(item.id, line);
 				data.add(item);
 			}
     		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
-    		runOnUiThread(new Runnable() {
+    		// notifyDataSetChanged, invalidateViews seem not working inside onScroll
+    		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
 				@Override
-				public void run() {
+				protected Void doInBackground(Void... params) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				@Override
+				 protected void onPostExecute(Void result) {
 					adAdapter.notifyDataSetChanged();
 					listView.invalidateViews();
+					if (data.size() >= itemIds.length) {
+						mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+					}
 				}
-    		});
-			if (data.size() >= itemIds.length) {
-				mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
-			}
+    		};
+    		task.execute();
 			return;
     	}
 //    	if (detailCacheManager.isCached(loadIds[0])) {
