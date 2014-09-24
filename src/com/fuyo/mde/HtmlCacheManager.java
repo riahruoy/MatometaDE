@@ -254,7 +254,21 @@ public class HtmlCacheManager {
     public void deleteCacheOneWeekAgo() {
     	//TODO
     }
-    
+    public int[] getCachedList() {
+    	ArrayList<Integer> list = new ArrayList<Integer> ();
+    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+ "/" + DIR_NAME);
+    	for (File dir : cacheDir.listFiles()) {
+    		int id = Integer.valueOf(dir.getName());
+    		if (isCached(id)) {
+    			list.add(id);
+    		}
+    	}
+    	int[] itemIds = new int[list.size()];
+    	for (int i = 0; i < list.size(); i++) {
+    		itemIds[i] = list.get(i);
+    	}
+    	return itemIds;
+    }
     public String getDetailMessage() {
     	long size = 0;
     	int count = 0;

@@ -87,6 +87,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 	private static final int TYPE_UNREAD = 1;
 	private static final int TYPE_READ = 2;
 	private static final int TYPE_SUGGEST = 100;	
+	private static final int TYPE_SAVED = 1000;
 	private int getItemType = TYPE_ALL;
 	private static final int AD_INTERVAL = 15;
 	private static final int PREFETCH_COUNT = 40;
@@ -664,8 +665,32 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
     	
     }
 
+    private void getListSaved() {
+    	int[] tmp_list = cacheManager.getCachedList(); 
+    	ArrayList<Integer> list = new ArrayList<Integer>(tmp_list.length);
+    	for (int i = 0; i < tmp_list.length; i++) {
+    		if (detailCacheManager.isCached(tmp_list[i])) {
+    			list.add(tmp_list[i]);
+    		}
+    	}
+		itemIds = new int[list.size()];
+		for (int i = 0; i < list.size(); i++) {
+			itemIds[i] = list.get(i);
+		}
+		data.clear();
+		listView.setEnabled(true);
+		adAdapter.notifyDataSetChanged();
+
+		listView.invalidateViews();
+    	
+    }
 	private void reloadDataSet() {
 
+		if (getItemType == TYPE_SAVED) {
+			getListSaved();
+			return;
+		}
+		
 		if (mGetItemTask != null) {
 			mGetItemTask.cancel(true);
 			mGetItemTask = null;
@@ -733,7 +758,6 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long itemId) {
-		//0: suggest, 1: all, 2: unread, 3:read
         Log.d("matome", "onNavigationItemSelected is called");
 		switch (position) {
 		case 0:
@@ -743,7 +767,7 @@ public class LatestItem extends Activity implements ActionBar.OnNavigationListen
 			getItemType = TYPE_SUGGEST;
 			break;
 		case 2:
-			getItemType = TYPE_UNREAD;
+			getItemType = TYPE_SAVED;
 			break;
 		case 3:
 			getItemType = TYPE_READ;
