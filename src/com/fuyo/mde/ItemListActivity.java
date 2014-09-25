@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -415,7 +416,6 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     			item.icon = null;
     		}
     		item.nouns = column[8].split(",");
-    		item.random = (int)Math.floor(Math.random() * 10);
     		return item;
     	}
     }
@@ -647,9 +647,10 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     			list.add(tmp_list[i]);
     		}
     	}
+    	Collections.sort(list);
 		itemIds = new int[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			itemIds[i] = list.get(i);
+		for (int i = 0; i < list.size() ; i++) {
+			itemIds[i] = list.get(list.size() - 1 - i);
 		}
 		data.clear();
 		listView.setEnabled(true);
