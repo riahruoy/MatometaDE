@@ -183,7 +183,7 @@ public class HtmlCacheManager {
    		return file.exists();
     }
     private String getZipDownloadPath(final int itemId) {
-		return "http://matome.iijuf.net/_api.getZipFromId.php?itemId="+itemId;
+		return "http://matome.iijuf.net/_api.getZipFromId.php?light=true&itemId="+itemId;
     }
     public interface OnCompleteListener {
     	void onComplete(String localPath);
