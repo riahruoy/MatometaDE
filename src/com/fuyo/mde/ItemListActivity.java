@@ -33,6 +33,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -47,6 +48,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.app.ActionBarDrawerToggle.Delegate;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -55,6 +57,7 @@ import android.view.MenuItem;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView.OnScrollListener;
@@ -72,6 +75,8 @@ import android.widget.Toast;
 
 public class ItemListActivity extends Activity implements ActionBar.OnNavigationListener{
 	protected ListView listView = null;
+	public static final String EX_STACK_TRACE = "exStackTrace";
+	public static final String PREF_NAME_SAMPLE = "prefNameSample";
 	protected static final int IMGVIEW_ID = 0x7f190000;
 	protected View mFooter = null;
 	protected ItemAdapter adapter = null;
@@ -105,6 +110,10 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
         cacheManager = HtmlCacheManager.getInstance(this);
         detailCacheManager = DetailCacheManager.getInstance(this);
         Log.d("matome", "onCreate is called");
+        CustomUncaughtExceptionHandler customUncaughtExceptionHandler = new CustomUncaughtExceptionHandler(
+                getApplicationContext());
+        Thread.setDefaultUncaughtExceptionHandler(customUncaughtExceptionHandler);
+        
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);
         mFooter = getLayoutInflater().inflate(R.layout.listview_footer, null);
@@ -126,6 +135,19 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
                e.printStackTrace();
           }
 
+        // SharedPreferencesに保存してある例外発生時のスタックトレースを取得します。
+        SharedPreferences preferences = getApplicationContext()
+                .getSharedPreferences(PREF_NAME_SAMPLE, Context.MODE_PRIVATE);
+        String exStackTrace = preferences.getString(EX_STACK_TRACE, null);
+ 
+        if (!TextUtils.isEmpty(exStackTrace)) {
+            // スタックトレースが存在する場合は、
+            // エラー情報を送信するかしないかのダイアログを表示します。
+            new ErrorDialogFragment(exStackTrace).show(
+                    getFragmentManager(), "error_dialog");
+            // スタックトレースを消去します。
+            preferences.edit().remove(EX_STACK_TRACE).commit();
+        }
         
         final ActionBar bar = getActionBar();
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -596,6 +618,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			if (item.icon != null) {
 				imgViewIcon = new ImageView(ItemListActivity.this);
 				imgViewIcon.setId(IMGVIEW_ID);
+//				imgViewIcon.setLayoutParams(new LinearLayout.LayoutParams(50, LayoutParams.WRAP_CONTENT));
 
 //				imgViewIcon.setBackgroundColor(Color.DKGRAY);
 				Bitmap bmp = BitmapFactory.decodeByteArray(item.icon, 0, item.icon.length);
