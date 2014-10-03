@@ -6,5 +6,10 @@
 			android:title="@string/pref_check_prefetch"
 			android:summary="@string/pref_check_prefetch_summary"
 			android:defaultValue="true" />
-	</PreferenceCategory>
+		<CheckBoxPreference
+			android:key="pref_checkbox_prefetch_light_mode"
+			android:title="@string/pref_check_light_mode"
+			android:summary="@string/pref_check_light_mode_summary"
+			android:defaultValue="true" />
+			</PreferenceCategory>
 </PreferenceScreen>

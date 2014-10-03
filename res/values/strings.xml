@@ -17,5 +17,7 @@
     <string name="new_version_found">新しいバージョンが見つかりました</string>
     <string name="pref_check_prefetch">次の記事の読み込みを行う</string>
     <string name="pref_check_prefetch_summary">バックグラウンドで次の記事の読み込みを行います</string>
+    <string name="pref_check_light_mode">画像を先読みしない</string>
+    <string name="pref_check_light_mode_summary">wifi利用時は画像を先読みします</string>
 
 </resources>

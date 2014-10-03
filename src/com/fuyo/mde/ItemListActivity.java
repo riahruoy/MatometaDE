@@ -72,6 +72,7 @@ import android.widget.RelativeLayout;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+class ListData { static Object lock = new Object();}
 
 public class ItemListActivity extends Activity implements ActionBar.OnNavigationListener{
 	protected ListView listView = null;
@@ -102,7 +103,6 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 	private HtmlCacheManager cacheManager;
 	private DetailCacheManager detailCacheManager;
 	private String MY_AD_UNIT_ID;
-
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -337,16 +337,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     		for (int i = 0; i < loadIds.length; i++) {
     			body += detailCacheManager.readFromCache(loadIds[i]) + "\n";
     		}
-			String[] lines = body.split("\n");
-			for (int i = 0; i < lines.length; i++) {
-				if (lines[i].indexOf("\t") == -1) {
-					continue;
-				}
-				String line = lines[i].trim();
-				Item item = Item.getFromLine(line);
-				data.add(item);
-			}
-    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
+			final String[] lines = body.split("\n");
     		// notifyDataSetChanged, invalidateViews seem not working inside onScroll
     		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
@@ -357,10 +348,20 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 				}
 				@Override
 				 protected void onPostExecute(Void result) {
-					adAdapter.notifyDataSetChanged();
-					listView.invalidateViews();
-					if (data.size() >= itemIds.length) {
-						mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+					synchronized (ListData.lock) {
+						for (int i = 0; i < lines.length; i++) {
+							if (lines[i].indexOf("\t") == -1) {
+								continue;
+							}
+							String line = lines[i].trim();
+							Item item = Item.getFromLine(line);
+							data.add(item);
+						}
+						adAdapter.notifyDataSetChanged();
+						listView.invalidateViews();
+						if (data.size() >= itemIds.length) {
+							mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+						}
 					}
 				}
     		};
@@ -372,18 +373,21 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			@Override
 			public void onSuccess(String body) {
 				String[] lines = body.split("\n");
-				for (int i = 0; i < lines.length; i++) {
-					if (lines[i].indexOf("\t") == -1) {
-						continue;
+				synchronized (ListData.lock) {
+					for (int i = 0; i < lines.length; i++) {
+						if (lines[i].indexOf("\t") == -1) {
+							continue;
+						}
+						String line = lines[i].trim();
+						Item item = Item.getFromLine(line);
+						detailCacheManager.writeToCache(item.id, line);
+	
+						data.add(item);
 					}
-					String line = lines[i].trim();
-					Item item = Item.getFromLine(line);
-					detailCacheManager.writeToCache(item.id, line);
-					data.add(item);
+		    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
+					adAdapter.notifyDataSetChanged();
+					listView.invalidateViews();
 				}
-	    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
-				adAdapter.notifyDataSetChanged();
-				listView.invalidateViews();
 				if (data.size() >= itemIds.length) {
 					mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
 				}
@@ -675,11 +679,13 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 		for (int i = 0; i < list.size() ; i++) {
 			itemIds[i] = list.get(list.size() - 1 - i);
 		}
-		data.clear();
-		listView.setEnabled(true);
-		adAdapter.notifyDataSetChanged();
+		synchronized (ListData.lock) {
+			data.clear();
+			listView.setEnabled(true);
+			adAdapter.notifyDataSetChanged();
 
-		listView.invalidateViews();
+			listView.invalidateViews();
+		}
     	
     }
 	private void reloadDataSet() {
@@ -718,11 +724,12 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			public void onPreExecute() {
 
 				listView.setEnabled(false);
-				data.clear();//order is important
-				itemIds = new int[]{};
-				adAdapter.notifyDataSetChanged();
-				listView.invalidateViews();
-
+				synchronized (ListData.lock) {
+					data.clear();//order is important
+					itemIds = new int[]{};
+					adAdapter.notifyDataSetChanged();
+					listView.invalidateViews();
+				}
 				dialog = new ProgressDialog(ItemListActivity.this);
 				dialog.setMessage("Loading...");
 				dialog.setCancelable(false);

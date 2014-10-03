@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,6 +48,8 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -54,6 +57,7 @@ import android.util.Log;
 
 public class HtmlCacheManager {
 	private static HtmlCacheManager singleton = null;
+	private final ConnectivityManager cm;
 	private final Context context;
 	private final SharedPreferences sharedPref;
 	private boolean bgPrefetchStopFlag = true; 
@@ -68,6 +72,7 @@ public class HtmlCacheManager {
 	}
 	private HtmlCacheManager (final Context context) {
 		this.context = context;
+		cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 	private static byte[] download(final String url) {
@@ -183,6 +188,14 @@ public class HtmlCacheManager {
    		return file.exists();
     }
     private String getZipDownloadPath(final int itemId) {
+    	boolean lightMode = sharedPref.getBoolean("pref_checkbox_prefetch_light_mode",true);
+    	if (!lightMode) {
+    		return "http://matome.iijuf.net/_api.getZipFromId.php?itemId="+itemId;
+    	}
+    	NetworkInfo info = cm.getActiveNetworkInfo();
+    	if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
+    		return "http://matome.iijuf.net/_api.getZipFromId.php?itemId="+itemId;
+    	}
 		return "http://matome.iijuf.net/_api.getZipFromId.php?light=true&itemId="+itemId;
     }
     public interface OnCompleteListener {
@@ -252,8 +265,17 @@ public class HtmlCacheManager {
     	cacheDir.delete();
     }
     public void deleteCacheOneWeekAgo() {
+    	final long one_day = 1000 * 60 * 60 * 24 * 1;
+    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME);
+    	for (File file : cacheDir.listFiles()) {
+    		long now = System.currentTimeMillis();
+    		if (file.lastModified() + one_day < now) {
+    			deleteCache(Integer.valueOf(file.getName()));
+    		}
+    	}
     	//TODO
     }
+    
     public int[] getCachedList() {
     	ArrayList<Integer> list = new ArrayList<Integer> ();
     	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+ "/" + DIR_NAME);
