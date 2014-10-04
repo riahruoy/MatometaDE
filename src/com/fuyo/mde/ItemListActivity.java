@@ -595,6 +595,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			TextView textViewSite = (TextView)convertView.findViewById(R.id.textViewSite);
 			TextView textViewTime = (TextView)convertView.findViewById(R.id.textViewTime);
 			TextView textViewCached = (TextView)convertView.findViewById(R.id.textViewCached);
+			TextView colorStatusView = (TextView)convertView.findViewById(R.id.colorStatusView);
 			
 			LinearLayout baseLL = (LinearLayout)convertView.findViewById(R.id.baseLinearLayout);
 
@@ -609,10 +610,16 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			if (cacheManager.isCached(item.id)) {
 				baseLL.setBackgroundColor(Color.BLACK);
 				textViewCached.setText("Cached");
+				if (cacheManager.getCacheMode(item.id) == HtmlCacheManager.CACHE_FULL) {
+					colorStatusView.setBackgroundColor(Color.rgb(150, 61, 61));
+				} else {
+					colorStatusView.setBackgroundColor(Color.rgb(80, 35, 35));
+				}
 			} else {
 				//dusky green
 				baseLL.setBackgroundColor(Color.rgb(8, 16, 15));
 				textViewCached.setText("");
+				colorStatusView.setBackgroundColor(Color.BLACK);
 			}
 			ImageView imgViewIcon = (ImageView)llRow.findViewById(IMGVIEW_ID);
 			if (imgViewIcon != null) {

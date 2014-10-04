@@ -62,6 +62,8 @@ public class HtmlCacheManager {
 	private final SharedPreferences sharedPref;
 	private boolean bgPrefetchStopFlag = true; 
 	private static final String DIR_NAME = "html";
+	public static int CACHE_FULL = 2;
+	public static int CACHE_TEXT = 1;
 	private static final long BG_TIMEOUT = 5 * 60 * 1000;
 	private AsyncTask<int[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
@@ -186,6 +188,18 @@ public class HtmlCacheManager {
    		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
    		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
    		return file.exists();
+    }
+    public int getCacheMode (final int itemId) {
+   		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
+   		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
+   		File file2 = new File(cacheDirPath + "/" + itemId + "/light");
+   		if (file.exists() && file2.exists()) {
+   			return CACHE_TEXT; 
+   		} else if (file.exists() && !file2.exists()){
+   			return CACHE_FULL;
+   		} else {
+   			return 0;
+   		}
     }
     private String getZipDownloadPath(final int itemId) {
     	boolean lightMode = sharedPref.getBoolean("pref_checkbox_prefetch_light_mode",true);

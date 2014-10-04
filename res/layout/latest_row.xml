@@ -2,12 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingLeft="10dp"
     android:paddingRight="2dp"
-	android:id="@+id/baseLinearLayout"
-    android:orientation="vertical" >
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:orientation="horizontal" >
 
-    
+    <TextView
+        android:id="@+id/colorStatusView"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:text="" />
+
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+		android:id="@+id/baseLinearLayout"
+		android:paddingLeft="2dp"
+    	android:orientation="vertical" >
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -72,5 +83,6 @@
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
         </LinearLayout>
-    
+    </LinearLayout>
+
 </LinearLayout>
