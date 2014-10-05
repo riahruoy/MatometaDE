@@ -69,7 +69,7 @@ public class HtmlCacheManager {
 	private static final long BG_TIMEOUT = 5 * 60 * 1000;
 	private FullCacheManager fullCacheManager;
 	private LightCacheManager lightCacheManager;
-	private DetailCacheManager detailCacheManager;
+	private HeadlineCacheManager detailCacheManager;
 	private AsyncTask<int[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
 		if (singleton == null) {
@@ -83,7 +83,7 @@ public class HtmlCacheManager {
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		fullCacheManager = new FullCacheManager(context);
 		lightCacheManager = new LightCacheManager(context);
-		detailCacheManager = new DetailCacheManager(context);
+		detailCacheManager = new HeadlineCacheManager(context);
 	}
 
 

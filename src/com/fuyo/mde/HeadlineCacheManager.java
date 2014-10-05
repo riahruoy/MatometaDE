@@ -20,10 +20,10 @@ import android.view.View;
 
 import com.fuyo.mde.DownloadAsyncTask.DownloadEventListener;
 
-public class DetailCacheManager {
+public class HeadlineCacheManager {
 	private final String baseDir;
 	private final Context context;
-	public DetailCacheManager (final Context context) {
+	public HeadlineCacheManager (final Context context) {
 		this.context = context;
 		baseDir = context.getCacheDir().getAbsolutePath() + "/headline";
 	}
