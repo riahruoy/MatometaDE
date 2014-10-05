@@ -21,21 +21,15 @@ import android.view.View;
 import com.fuyo.mde.DownloadAsyncTask.DownloadEventListener;
 
 public class DetailCacheManager {
-	private static DetailCacheManager singleton = null;
-	private final String CACHE_DIR = "/headline/";
+	private final String baseDir;
 	private final Context context;
-	static DetailCacheManager getInstance(final Context context) {
-		if (singleton == null) {
-			singleton = new DetailCacheManager(context);
-		}
-		return singleton;
-	}
-	private DetailCacheManager (final Context context) {
+	public DetailCacheManager (final Context context) {
 		this.context = context;
+		baseDir = context.getCacheDir().getAbsolutePath() + "/headline";
 	}
 
 	public void writeToCache(final int itemId, final String data) {
-		String filepath = context.getCacheDir() + CACHE_DIR + itemId;
+		String filepath = baseDir + itemId;
 		File file = new File(filepath);
 		file.getParentFile().mkdirs();
 		BufferedWriter out = null; 
@@ -52,7 +46,7 @@ public class DetailCacheManager {
 	}
 	public String readFromCache(final int itemId) {
 		String line = null;
-		String filepath = context.getCacheDir() + CACHE_DIR + itemId;
+		String filepath = baseDir + itemId;
 		File file = new File(filepath);
 		try {
 			BufferedReader br = new BufferedReader(
@@ -82,10 +76,29 @@ public class DetailCacheManager {
 		writeToCache(itemId, line);
 	}
 	public boolean isCached(final int itemId) {
-		String filepath = context.getCacheDir() + CACHE_DIR + itemId;
+		String filepath = baseDir + itemId;
 		File file = new File(filepath);
 		return file.exists();
 	}
-	public void cancel() {
-	}
+    public void deleteCacheOneWeekAgo() {
+    	final long ttl = 1000 * 60 * 60 * 24 * 3;
+    	
+    	File cacheDir = new File(baseDir);
+    	for (File file : cacheDir.listFiles()) {
+    		long now = System.currentTimeMillis();
+    		if (file.lastModified() + ttl < now) {
+    			deleteCache(Integer.valueOf(file.getName()));
+    		}
+    	}
+    }
+    public void deleteAllCache() {
+    	File cacheDir = new File(baseDir);
+    	for (File file : cacheDir.listFiles()) {
+    		deleteCache(Integer.valueOf(file.getName()));
+    	}
+    }
+    private void deleteCache(final int itemId) {
+    	File file = new File(baseDir + "/"+itemId);
+    	file.delete();
+    }
 }

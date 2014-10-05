@@ -100,14 +100,12 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 	private int versionCode = 0;
 	SpinnerAdapter mSpinnerAdapter;
 	private HtmlCacheManager cacheManager;
-	private DetailCacheManager detailCacheManager;
 	private String MY_AD_UNIT_ID;
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
         cacheManager = HtmlCacheManager.getInstance(this);
-        detailCacheManager = DetailCacheManager.getInstance(this);
         Log.d("matome", "onCreate is called");
         CustomUncaughtExceptionHandler customUncaughtExceptionHandler = new CustomUncaughtExceptionHandler(
                 getApplicationContext());
@@ -169,7 +167,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 				final Item item = (Item)listView.getItemAtPosition(position);
 				
 				uploadUnreadId(adAdapter.toBasePosition(position));
-				detailCacheManager.updateRead(item.id);
+				cacheManager.recordRead(item.id);
 
 				//following item urls
 				ArrayList<Integer> followingItemIdsInteger = new ArrayList<Integer>();
@@ -326,7 +324,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	//for debug
     	boolean fullCached = true;
     	for (int i = 0; i < loadIds.length; i++) {
-    		if (!detailCacheManager.isCached(loadIds[i])) {
+    		if (!cacheManager.isHeadlineCached(loadIds[i])) {
     			fullCached = false;
     			break;
     		}
@@ -334,7 +332,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	if (fullCached) {
     		String body = "";
     		for (int i = 0; i < loadIds.length; i++) {
-    			body += detailCacheManager.readFromCache(loadIds[i]) + "\n";
+    			body += cacheManager.readHeadlineFromCache(loadIds[i]) + "\n";
     		}
 			final String[] lines = body.split("\n");
     		// notifyDataSetChanged, invalidateViews seem not working inside onScroll
@@ -379,7 +377,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 						}
 						String line = lines[i].trim();
 						Item item = Item.getFromLine(line);
-						detailCacheManager.writeToCache(item.id, line);
+						cacheManager.saveHeadlineToCache(item.id, line);
 	
 						data.add(item);
 					}
@@ -676,7 +674,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	int[] tmp_list = cacheManager.getFullCachedList(); 
     	ArrayList<Integer> list = new ArrayList<Integer>(tmp_list.length);
     	for (int i = 0; i < tmp_list.length; i++) {
-    		if (detailCacheManager.isCached(tmp_list[i])) {
+    		if (cacheManager.isHeadlineCached(tmp_list[i])) {
     			list.add(tmp_list[i]);
     		}
     	}

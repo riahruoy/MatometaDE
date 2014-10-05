@@ -12,7 +12,6 @@
     <string-array name="action_list">
         <item>全部</item>
         <item>推薦</item>
-        <item>保存済</item>
     </string-array>
     <string name="new_version_found">新しいバージョンが見つかりました</string>
     <string name="pref_check_prefetch">次の記事の読み込みを行う</string>

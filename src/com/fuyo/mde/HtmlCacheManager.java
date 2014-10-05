@@ -69,6 +69,7 @@ public class HtmlCacheManager {
 	private static final long BG_TIMEOUT = 5 * 60 * 1000;
 	private FullCacheManager fullCacheManager;
 	private LightCacheManager lightCacheManager;
+	private DetailCacheManager detailCacheManager;
 	private AsyncTask<int[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
 		if (singleton == null) {
@@ -82,6 +83,7 @@ public class HtmlCacheManager {
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 		fullCacheManager = new FullCacheManager(context);
 		lightCacheManager = new LightCacheManager(context);
+		detailCacheManager = new DetailCacheManager(context);
 	}
 
 
@@ -108,6 +110,19 @@ public class HtmlCacheManager {
     	} else {
     		return CACHE_NONE;
     	}
+    }
+    
+    public void saveHeadlineToCache(final int itemId, final String data) {
+    	detailCacheManager.writeToCache(itemId, data);
+    }
+    public String readHeadlineFromCache(final int itemId) {
+    	return detailCacheManager.readFromCache(itemId);
+    }
+    public void recordRead(final int itemId) {
+    	detailCacheManager.updateRead(itemId);
+    }
+    public boolean isHeadlineCached(final int itemId) {
+    	return detailCacheManager.isCached(itemId);
     }
     public void startBackgroundPrefetch(final int[] itemIds) {
     	if (!sharedPref.getBoolean("pref_checkbox_prefetch", true)) return;
@@ -178,6 +193,7 @@ public class HtmlCacheManager {
     public void deleteAllCache() {
     	lightCacheManager.deleteAllCache();
     	fullCacheManager.deleteAllCache();
+    	detailCacheManager.deleteAllCache();
     }
     
 }

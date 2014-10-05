@@ -139,11 +139,11 @@ public abstract class BasicPageManager {
     	cacheDir.delete();
     }
     public void deleteCacheOneWeekAgo() {
-    	final long one_day = 1000 * 60 * 60 * 24 * 1;
+    	final long ttl = 1000 * 60 * 60 * 24 * 3;
     	File cacheDir = new File(baseDir);
     	for (File file : cacheDir.listFiles()) {
     		long now = System.currentTimeMillis();
-    		if (file.lastModified() + one_day < now) {
+    		if (file.lastModified() + ttl < now) {
     			deleteCache(Integer.valueOf(file.getName()));
     		}
     	}
