@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.fuyo.mde.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.Ad;
 import com.google.ads.AdListener;
 import com.google.ads.AdRequest;
@@ -607,14 +606,14 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
 
-			if (cacheManager.isCached(item.id)) {
+			if (cacheManager.getCachedType(item.id) == HtmlCacheManager.CACHE_FULL) {
 				baseLL.setBackgroundColor(Color.BLACK);
 				textViewCached.setText("Cached");
-				if (cacheManager.getCacheMode(item.id) == HtmlCacheManager.CACHE_FULL) {
-					colorStatusView.setBackgroundColor(Color.rgb(150, 61, 61));
-				} else {
-					colorStatusView.setBackgroundColor(Color.rgb(80, 35, 35));
-				}
+				colorStatusView.setBackgroundColor(Color.rgb(150, 61, 61));
+			} else if (cacheManager.getCachedType(item.id) == HtmlCacheManager.CACHE_LIGHT) { 
+				baseLL.setBackgroundColor(Color.BLACK);
+				textViewCached.setText("Cached");
+				colorStatusView.setBackgroundColor(Color.rgb(80, 35, 35));
 			} else {
 				//dusky green
 				baseLL.setBackgroundColor(Color.rgb(8, 16, 15));
@@ -674,7 +673,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     }
 
     private void getListSaved() {
-    	int[] tmp_list = cacheManager.getCachedList(); 
+    	int[] tmp_list = cacheManager.getFullCachedList(); 
     	ArrayList<Integer> list = new ArrayList<Integer>(tmp_list.length);
     	for (int i = 0; i < tmp_list.length; i++) {
     		if (detailCacheManager.isCached(tmp_list[i])) {

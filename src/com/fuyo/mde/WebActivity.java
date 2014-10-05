@@ -14,7 +14,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
-import com.fuyo.mde.HtmlCacheManager.OnCompleteListener;
 import com.google.ads.AdRequest;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
@@ -27,6 +26,7 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
@@ -108,14 +108,7 @@ public class WebActivity extends Activity {
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
         	layout.addView(webView, param);
-        	cacheManager.getCachedArticle(articleId, new OnCompleteListener() {
-				
-				@Override
-				public void onComplete(String url) {
-					webView.loadUrl(url);
-				}
-			});
-
+        	webView.loadUrl(cacheManager.getArticlePath(articleId));
         	
 
     		progress = (ProgressBar)findViewById(R.id.view_actionbar_progress);

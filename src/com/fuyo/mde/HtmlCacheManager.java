@@ -54,6 +54,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 public class HtmlCacheManager {
 	private static HtmlCacheManager singleton = null;
@@ -63,8 +64,11 @@ public class HtmlCacheManager {
 	private boolean bgPrefetchStopFlag = true; 
 	private static final String DIR_NAME = "html";
 	public static int CACHE_FULL = 2;
-	public static int CACHE_TEXT = 1;
+	public static int CACHE_LIGHT = 1;
+	public static int CACHE_NONE = 0;
 	private static final long BG_TIMEOUT = 5 * 60 * 1000;
+	private FullCacheManager fullCacheManager;
+	private LightCacheManager lightCacheManager;
 	private AsyncTask<int[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
 		if (singleton == null) {
@@ -76,149 +80,48 @@ public class HtmlCacheManager {
 		this.context = context;
 		cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-	}
-	private static byte[] download(final String url) {
-
-		HttpParams httpParams = new BasicHttpParams();
-		httpParams.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, Integer.valueOf(1000));
-		httpParams.setParameter(CoreConnectionPNames.SO_TIMEOUT, Integer.valueOf(30000));
-		httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Mozilla/5.0 (Linux; U; Android 4.0.1; ja-jp; Galaxy Nexus Build/ITL41D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30");
-		HttpClient httpClient = new DefaultHttpClient(httpParams);
-
-		HttpPost httpPost = new HttpPost(url);
-		ResponseHandler<byte[]> responseHandler = new ResponseHandler<byte[]>() {
-	
-			@Override
-			public byte[] handleResponse(HttpResponse response)
-					throws ClientProtocolException, IOException {
-				switch (response.getStatusLine().getStatusCode()) {
-				case HttpStatus.SC_OK:
-					return EntityUtils.toByteArray(response.getEntity());
-				default:
-					return null;
-				}
-			}
-		};
-
-		byte[] result = null;
-		try {
-			result = httpClient.execute(httpPost, responseHandler);
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		httpClient.getConnectionManager().shutdown();
-		return result;
+		fullCacheManager = new FullCacheManager(context);
+		lightCacheManager = new LightCacheManager(context);
 	}
 
-	private void downloadArticle(final int itemId) {
-		String url = getZipDownloadPath(itemId);
-		byte[] zipData = download(url);
-		writeToCache(itemId, zipData);
-
-    }
-    private void writeToCache(final int itemId, final byte[] body) {
-		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
-		//TODO download picture with client, use picUrl newUrl table
-    	ZipInputStream in = null;
-    	ZipEntry zipEntry = null;
-    	FileOutputStream out = null;
-    	try {
-    		//http://www.jxpath.com/beginner/zipFile/decode.html
-    		in = new ZipInputStream(new ByteArrayInputStream(body));
-    		while ((zipEntry = in.getNextEntry()) != null) {
-    			File newFile = new File(cacheDirPath, zipEntry.getName());
-    			if (zipEntry.isDirectory()) {
-    				newFile.mkdirs();
-    			} else {
-    				newFile.getParentFile().mkdirs();
-    				out = new FileOutputStream(newFile);
-    				byte[] buf = new byte[1024];
-    				int size = 0;
-    				while ((size = in.read(buf)) > 0) {
-    					out.write(buf, 0, size);
-    				}
-    				out.close();
-    				out = null;
-    			}
-    			in.closeEntry();
-    		}
-			in.close();
-
-    	} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
 
     /**
      * getArticle from Cached file. If no cache, it'll download from the internet
      * @param url
      * @param listener
      */
-    public void getCachedArticle(final int itemId, final OnCompleteListener listener) {
+    public String getArticlePath(final int itemId) {
     	//TODO how to treat if bgPrefetch is downloading the same url?
-    	if (!isCached(itemId)) {
-    		Log.d("HtmlCache", "cache not found for itemId=" + itemId);
-    		listener.onComplete("http://matome.iijuf.net/function.createData.php?siteId=0&itemId=" + itemId);
-//    		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void> (){
-//				@Override
-//				protected Void doInBackground(Void... params) {
-//					downloadArticle(itemId);
-//					return null;
-//				}
-//				@Override
-//				protected void onPostExecute(Void result) {
-//					listener.onComplete(getLocalPath(itemId));
-//				}
-//    		};
-//    		task.execute();
+    	if (fullCacheManager.isCached(itemId)) {
+    		return fullCacheManager.getLocalPath(itemId);
+    	} else if (lightCacheManager.isCached(itemId)) {
+    		return lightCacheManager.getLocalPath(itemId);
     	} else {
-    		Log.d("HtmlCache", "cache hit");
-    		listener.onComplete(getLocalPath(itemId));
+    		return "http://matome.iijuf.net/function.createData.php?siteId=0&itemId=" + itemId;
     	}
     }
-    private String getLocalPath (final int itemId) {
-   		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
-   		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
-    	return "file://"+file.getAbsolutePath();
-    }
-    public boolean isCached(final int itemId) {
-   		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
-   		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
-   		return file.exists();
-    }
-    public int getCacheMode (final int itemId) {
-   		String cacheDirPath = context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME;
-   		File file = new File(cacheDirPath + "/" + itemId + "/" + "index.html");
-   		File file2 = new File(cacheDirPath + "/" + itemId + "/light");
-   		if (file.exists() && file2.exists()) {
-   			return CACHE_TEXT; 
-   		} else if (file.exists() && !file2.exists()){
-   			return CACHE_FULL;
-   		} else {
-   			return 0;
-   		}
-    }
-    private String getZipDownloadPath(final int itemId) {
-    	boolean lightMode = sharedPref.getBoolean("pref_checkbox_prefetch_light_mode",true);
-    	if (!lightMode) {
-    		return "http://matome.iijuf.net/_api.getZipFromId.php?itemId="+itemId;
+    public int getCachedType(final int itemId) {
+    	if (fullCacheManager.isCached(itemId)) {
+    		return CACHE_FULL;
+    	} else if (lightCacheManager.isCached(itemId)) {
+    		return CACHE_LIGHT;
+    	} else {
+    		return CACHE_NONE;
     	}
-    	NetworkInfo info = cm.getActiveNetworkInfo();
-    	if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
-    		return "http://matome.iijuf.net/_api.getZipFromId.php?itemId="+itemId;
-    	}
-		return "http://matome.iijuf.net/_api.getZipFromId.php?light=true&itemId="+itemId;
-    }
-    public interface OnCompleteListener {
-    	void onComplete(String localPath);
     }
     public void startBackgroundPrefetch(final int[] itemIds) {
     	if (!sharedPref.getBoolean("pref_checkbox_prefetch", true)) return;
-    	deleteCacheOneWeekAgo();
     	if (itemIds.length == 0) return;
+    	lightCacheManager.deleteCacheOneWeekAgo();
+    	fullCacheManager.deleteCacheOneWeekAgo();
+    	
+    	BasicPageManager pageManager_tmp = lightCacheManager;
+    	NetworkInfo info = cm.getActiveNetworkInfo();
+    	if (info.getType() == ConnectivityManager.TYPE_WIFI
+    			|| !sharedPref.getBoolean("pref_checkbox_prefetch_light_mode", true)) {
+    		pageManager_tmp = fullCacheManager;
+    	}
+    	final BasicPageManager pageManager = pageManager_tmp;
 		Log.d("prefetch", "prefetch: started");
     	bgPrefetchStopFlag = false;
     	if (bgPrefetchTask2 == null) {
@@ -229,12 +132,9 @@ public class HtmlCacheManager {
     				long start = System.currentTimeMillis();
     				int[] itemIds = params[0];
     				for (int i = 0; i < itemIds.length; i++) {
-    					if (isCached(itemIds[i])) continue;
-    					String url = getZipDownloadPath(itemIds[i]);
-    					byte[] zipBody = download(url);
-    					writeToCache(itemIds[i], zipBody);
-    					Log.d("prefetch", "prefetch: complete " + url);
-    	
+    					if (pageManager.isCached(itemIds[i])) continue;
+    					pageManager.downloadAndSaveArticle(itemIds[i]);
+    					Log.d("prefetch", "prefetch complete for itemId = " + itemIds[i]);
     					
     					if (bgPrefetchStopFlag) {
     						Log.d("prefetch", "prefetch: is cancelled with flag");
@@ -265,60 +165,19 @@ public class HtmlCacheManager {
 		Log.d("prefetch", "prefetch: stopped");
     	
     }
-    public void deleteAllCache() {
-    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME);
-    	for (File file : cacheDir.listFiles()) {
-    		deleteCache(Integer.valueOf(file.getName()));
-    	}
-    }
-    private void deleteCache(final int itemId) {
-    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME+"/"+itemId);
-    	for (File file : cacheDir.listFiles()) {
-   			file.delete();
-    	}
-    	cacheDir.delete();
-    }
-    public void deleteCacheOneWeekAgo() {
-    	final long one_day = 1000 * 60 * 60 * 24 * 1;
-    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME);
-    	for (File file : cacheDir.listFiles()) {
-    		long now = System.currentTimeMillis();
-    		if (file.lastModified() + one_day < now) {
-    			deleteCache(Integer.valueOf(file.getName()));
-    		}
-    	}
-    	//TODO
-    }
-    
-    public int[] getCachedList() {
-    	ArrayList<Integer> list = new ArrayList<Integer> ();
-    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+ "/" + DIR_NAME);
-    	for (File dir : cacheDir.listFiles()) {
-    		int id = Integer.valueOf(dir.getName());
-    		if (isCached(id)) {
-    			list.add(id);
-    		}
-    	}
-    	int[] itemIds = new int[list.size()];
-    	for (int i = 0; i < list.size(); i++) {
-    		itemIds[i] = list.get(i);
-    	}
-    	return itemIds;
-    }
     public String getDetailMessage() {
-    	long size = 0;
-    	int count = 0;
-    	File cacheDir = new File(context.getCacheDir().getAbsolutePath()+"/"+DIR_NAME);
-    	for (File dir : cacheDir.listFiles()) {
-   			count++;
-    		for (File file : dir.listFiles()) {
-	   			size += file.length();
-
-    		}
-    	}
-    	double mb = (double)Math.round((double)size / 1000) / 1000;
-    	String str = count + " articles  " + mb + " MB";
+    	Pair<Integer, Long> full = fullCacheManager.getPageSize();
+    	Pair<Integer, Long> light = lightCacheManager.getPageSize();
+    	double mb = (double)Math.round((double)(full.second + light.second) / 1000) / 1000;
+    	String str = (full.first + light.first) + " articles  " + mb + " MB";
     	return str;
+    }
+    public int[] getFullCachedList() {
+    	return fullCacheManager.getCachedList();
+    }
+    public void deleteAllCache() {
+    	lightCacheManager.deleteAllCache();
+    	fullCacheManager.deleteAllCache();
     }
     
 }
