@@ -52,6 +52,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.provider.Browser.BookmarkColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -63,6 +64,7 @@ public class HtmlCacheManager {
 	private final SharedPreferences sharedPref;
 	private boolean bgPrefetchStopFlag = true; 
 	private static final String DIR_NAME = "html";
+	public static int CACHE_BOOKMARK = 3;
 	public static int CACHE_FULL = 2;
 	public static int CACHE_LIGHT = 1;
 	public static int CACHE_NONE = 0;
@@ -70,6 +72,8 @@ public class HtmlCacheManager {
 	private FullCacheManager fullCacheManager;
 	private LightCacheManager lightCacheManager;
 	private HeadlineCacheManager detailCacheManager;
+	private PageBookmarkManager pageBookmarkManager;
+	private HeadlineBookmarkManager headlineBookmarkManager;
 	private AsyncTask<int[], Void, Void> bgPrefetchTask2 = null;
 	static HtmlCacheManager getInstance (final Context context) {
 		if (singleton == null) {
@@ -84,6 +88,8 @@ public class HtmlCacheManager {
 		fullCacheManager = new FullCacheManager(context);
 		lightCacheManager = new LightCacheManager(context);
 		detailCacheManager = new HeadlineCacheManager(context);
+		pageBookmarkManager = new PageBookmarkManager(context);
+		headlineBookmarkManager = new HeadlineBookmarkManager(context);
 	}
 
 
@@ -94,7 +100,9 @@ public class HtmlCacheManager {
      */
     public String getArticlePath(final int itemId) {
     	//TODO how to treat if bgPrefetch is downloading the same url?
-    	if (fullCacheManager.isCached(itemId)) {
+    	if (pageBookmarkManager.isCached(itemId)) {
+    		return pageBookmarkManager.getLocalPath(itemId);
+    	} else if (fullCacheManager.isCached(itemId)) {
     		return fullCacheManager.getLocalPath(itemId);
     	} else if (lightCacheManager.isCached(itemId)) {
     		return lightCacheManager.getLocalPath(itemId);
@@ -103,7 +111,9 @@ public class HtmlCacheManager {
     	}
     }
     public int getCachedType(final int itemId) {
-    	if (fullCacheManager.isCached(itemId)) {
+    	if (pageBookmarkManager.isCached(itemId)) {
+    		return CACHE_BOOKMARK;
+    	}else if (fullCacheManager.isCached(itemId)) {
     		return CACHE_FULL;
     	} else if (lightCacheManager.isCached(itemId)) {
     		return CACHE_LIGHT;
@@ -111,15 +121,47 @@ public class HtmlCacheManager {
     		return CACHE_NONE;
     	}
     }
-    
+    public boolean saveToBookmark (final int itemId) {
+    	//TODO to be dealt with that headline is not saved on cache
+    	if (!detailCacheManager.isCached(itemId)) return false;
+    	headlineBookmarkManager.writeToCache(itemId, detailCacheManager.readFromCache(itemId));
+    	if (fullCacheManager.isCached(itemId)) {
+    		//copy
+    		File dir = fullCacheManager.getItemDir(itemId);
+    		pageBookmarkManager.copyFromOtherFolder(dir);
+    	} else {
+    		pageBookmarkManager.downloadAndSaveArticle(itemId);
+    	}
+    	return true;
+    }
+    public boolean removeFromBookmark (final int itemId) {
+    	if (headlineBookmarkManager.isCached(itemId)) {
+    		headlineBookmarkManager.deleteCache(itemId);
+    	}
+    	if (pageBookmarkManager.isCached(itemId)) {
+    		pageBookmarkManager.deleteCache(itemId);
+    	}
+    	return true;
+    }
+    public boolean isBookmarked (final int itemId) {
+    	return (headlineBookmarkManager.isCached(itemId)
+    			&& pageBookmarkManager.isCached(itemId));
+    }
     public void saveHeadlineToCache(final int itemId, final String data) {
     	detailCacheManager.writeToCache(itemId, data);
     }
     public String readHeadlineFromCache(final int itemId) {
-    	return detailCacheManager.readFromCache(itemId);
+    	if (headlineBookmarkManager.isCached(itemId)) {
+    		return headlineBookmarkManager.readFromCache(itemId);
+    	} else {
+    		return detailCacheManager.readFromCache(itemId);
+    	}
     }
     public void recordRead(final int itemId) {
     	detailCacheManager.updateRead(itemId);
+    	if (headlineBookmarkManager.isCached(itemId)) {
+    		headlineBookmarkManager.updateRead(itemId);
+    	}
     }
     public boolean isHeadlineCached(final int itemId) {
     	return detailCacheManager.isCached(itemId);
@@ -187,8 +229,8 @@ public class HtmlCacheManager {
     	String str = (full.first + light.first) + " articles  " + mb + " MB";
     	return str;
     }
-    public int[] getFullCachedList() {
-    	return fullCacheManager.getCachedList();
+    public int[] getBookmarkedList() {
+    	return pageBookmarkManager.getCachedList();
     }
     public void deleteAllCache() {
     	lightCacheManager.deleteAllCache();

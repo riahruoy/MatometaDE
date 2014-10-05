@@ -232,13 +232,51 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long id) {
 				if (adAdapter.isAd(position)) return false;
+				AlertDialog.Builder builder = new AlertDialog.Builder(ItemListActivity.this);
 				Item item = (Item)listView.getItemAtPosition(position);
-				StringBuilder sb = new StringBuilder();
-				sb.append("id : ").append(item.id).append('\n');
-				new AlertDialog.Builder(ItemListActivity.this)
-				.setTitle("debug")
-				.setMessage(sb.toString())
-				.show();
+				final int itemId = item.id;
+				builder.setTitle(item.id + " bookmark");
+				if (!cacheManager.isBookmarked(item.id)) {
+					builder.setMessage("add to bookmark?");
+					builder.setPositiveButton("Yes", new OnClickListener(){
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void> () {
+								@Override
+								protected Void doInBackground(Void... params) {
+									cacheManager.saveToBookmark(itemId);
+									return null;
+								}
+								@Override
+								protected void onPostExecute(Void result) {
+									Toast.makeText(ItemListActivity.this, "お気に入りに追加しました", Toast.LENGTH_SHORT).show();
+									adAdapter.notifyDataSetChanged();
+									listView.invalidateViews();
+								}
+								
+							};
+							task.execute();
+						}
+						
+					});
+				} else {
+					builder.setMessage("remove from bookmark?");
+					builder.setPositiveButton("Yes", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							cacheManager.removeFromBookmark(itemId);
+							adAdapter.notifyDataSetChanged();
+							listView.invalidateViews();
+					
+						}
+					});
+				}
+				builder.setNegativeButton("cancel", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				});
+				builder.create().show();
 				return false;
 			}
 		});
@@ -324,6 +362,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	//for debug
     	boolean fullCached = true;
     	for (int i = 0; i < loadIds.length; i++) {
+    		if (loadIds[i] == 0) continue;
     		if (!cacheManager.isHeadlineCached(loadIds[i])) {
     			fullCached = false;
     			break;
@@ -332,6 +371,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	if (fullCached) {
     		String body = "";
     		for (int i = 0; i < loadIds.length; i++) {
+        		if (loadIds[i] == 0) continue;
     			body += cacheManager.readHeadlineFromCache(loadIds[i]) + "\n";
     		}
 			final String[] lines = body.split("\n");
@@ -604,7 +644,11 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			textViewSite.setText(item.site);
 			textViewDate.setText(item.date);
 
-			if (cacheManager.getCachedType(item.id) == HtmlCacheManager.CACHE_FULL) {
+			if (cacheManager.getCachedType(item.id) == HtmlCacheManager.CACHE_BOOKMARK) {
+				baseLL.setBackgroundColor(Color.BLACK);
+				textViewCached.setText("bookmark");
+				colorStatusView.setBackgroundColor(Color.rgb(190, 190, 81));
+			} else if (cacheManager.getCachedType(item.id) == HtmlCacheManager.CACHE_FULL) {
 				baseLL.setBackgroundColor(Color.BLACK);
 				textViewCached.setText("Cached");
 				colorStatusView.setBackgroundColor(Color.rgb(150, 61, 61));
@@ -671,7 +715,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     }
 
     private void getListSaved() {
-    	int[] tmp_list = cacheManager.getFullCachedList(); 
+    	int[] tmp_list = cacheManager.getBookmarkedList(); 
     	ArrayList<Integer> list = new ArrayList<Integer>(tmp_list.length);
     	for (int i = 0; i < tmp_list.length; i++) {
     		if (cacheManager.isHeadlineCached(tmp_list[i])) {
