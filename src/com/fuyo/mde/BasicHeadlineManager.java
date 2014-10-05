@@ -18,9 +18,13 @@ public class BasicHeadlineManager {
 	public BasicHeadlineManager (final Context context, final String baseDir) {
 		this.context = context;
 		this.baseDir = baseDir;
+		File dir = new File(baseDir);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
 	}
 	public void writeToCache(final int itemId, final String data) {
-		String filepath = baseDir + itemId;
+		String filepath = baseDir + "/" + itemId;
 		File file = new File(filepath);
 		file.getParentFile().mkdirs();
 		BufferedWriter out = null; 
@@ -37,7 +41,7 @@ public class BasicHeadlineManager {
 	}
 	public String readFromCache(final int itemId) {
 		String line = null;
-		String filepath = baseDir + itemId;
+		String filepath = baseDir +"/"+ itemId;
 		File file = new File(filepath);
 		try {
 			BufferedReader br = new BufferedReader(
@@ -67,7 +71,7 @@ public class BasicHeadlineManager {
 		writeToCache(itemId, line);
 	}
 	public boolean isCached(final int itemId) {
-		String filepath = baseDir + itemId;
+		String filepath = baseDir +"/"+ itemId;
 		File file = new File(filepath);
 		return file.exists();
 	}
@@ -84,13 +88,16 @@ public class BasicHeadlineManager {
     }
     public void deleteAllCache() {
     	File cacheDir = new File(baseDir);
+    	if (!cacheDir.exists()) return;
     	for (File file : cacheDir.listFiles()) {
     		deleteCache(Integer.valueOf(file.getName()));
     	}
     }
     public void deleteCache(final int itemId) {
     	File file = new File(baseDir + "/"+itemId);
-    	file.delete();
+    	if (file.exists()) {
+    		file.delete();
+    	}
     }
 
 }

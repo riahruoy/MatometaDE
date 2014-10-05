@@ -169,6 +169,7 @@ public class HtmlCacheManager {
     public void startBackgroundPrefetch(final int[] itemIds) {
     	if (!sharedPref.getBoolean("pref_checkbox_prefetch", true)) return;
     	if (itemIds.length == 0) return;
+    	if (bgPrefetchTask2 != null) return;
     	lightCacheManager.deleteCacheOneWeekAgo();
     	fullCacheManager.deleteCacheOneWeekAgo();
     	

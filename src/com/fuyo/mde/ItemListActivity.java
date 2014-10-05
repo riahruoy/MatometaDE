@@ -83,6 +83,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 	protected ItemAdAdapter adAdapter = null;
 	protected int[] itemIds = new int[]{};
 	protected GetItemAsyncTask mGetItemTask = null;
+	protected boolean reading = false;
 	protected String uuid = "testUIDD";
 	static final String KEY_UUID = "uuid";
 	static final String KEY_DEFAULT_TYPE = "default_type";
@@ -339,14 +340,19 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 		listView.invalidateViews();
 	}
     
-    private void addtitionalReading() {
+     private void addtitionalReading() {
     	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
-    		mGetItemTask.cancel(true);
-    		mGetItemTask=null;
-    		Log.d("loading", "itemTask is cancelled");
+    		return;
+//    		mGetItemTask.cancel(true);
+//    		mGetItemTask=null;
+//    		Log.d("loading", "itemTask is cancelled");
 
 //    		return;
     	}
+    	if (reading) {
+    		return;
+    	}
+    	
     	if (itemIds.length == 0) {
     		Log.d("loading", "itemIds.length == 0");
 //    		return;
@@ -369,6 +375,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     		}
     	}
     	if (fullCached) {
+    		reading = true;
     		String body = "";
     		for (int i = 0; i < loadIds.length; i++) {
         		if (loadIds[i] == 0) continue;
@@ -396,6 +403,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 						}
 						adAdapter.notifyDataSetChanged();
 						listView.invalidateViews();
+						reading = false;
 						if (data.size() >= itemIds.length) {
 							mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
 						}

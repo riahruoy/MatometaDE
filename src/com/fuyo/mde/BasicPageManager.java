@@ -136,6 +136,7 @@ public abstract class BasicPageManager {
     }
     public void deleteCache(final int itemId) {
     	File cacheDir = new File(baseDir + "/"+itemId);
+    	if (!cacheDir.exists()) return;
     	for (File file : cacheDir.listFiles()) {
    			file.delete();
     	}
