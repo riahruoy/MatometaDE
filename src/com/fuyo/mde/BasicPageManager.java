@@ -22,6 +22,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 public abstract class BasicPageManager {
@@ -72,6 +73,8 @@ public abstract class BasicPageManager {
 	protected void downloadAndSaveArticle(final int itemId) {
 		String url = getZipDownloadPath(itemId);
 		byte[] zipData = download(url);
+		if (zipData == null) return;
+		Log.d("prefetch", "bgPrefetch failed for itemId=" + itemId + " " + url);
 		writeToCache(itemId, zipData);
 
     }
