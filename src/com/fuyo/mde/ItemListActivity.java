@@ -75,6 +75,7 @@ class ListData { static Object lock = new Object();}
 
 public class ItemListActivity extends Activity implements ActionBar.OnNavigationListener{
 	protected ListView listView = null;
+	protected TextView emptyView = null;
 	public static final String EX_STACK_TRACE = "exStackTrace";
 	public static final String PREF_NAME_SAMPLE = "prefNameSample";
 	protected static final int IMGVIEW_ID = 0x7f190000;
@@ -114,6 +115,8 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
         
         setContentView(R.layout.activity_latest_item);
         listView = (ListView)findViewById(R.id.listViewLatest);
+        emptyView = (TextView)findViewById(R.id.listViewLatestEmpty);
+        listView.setEmptyView(emptyView);
         mFooter = getLayoutInflater().inflate(R.layout.listview_footer, null);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         if (!sharedPref.contains(KEY_UUID)) {
@@ -722,7 +725,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	
     }
 
-    private void getListSaved() {
+    private int getListSaved() {
     	int[] tmp_list = cacheManager.getBookmarkedList(); 
     	ArrayList<Integer> list = new ArrayList<Integer>(tmp_list.length);
     	for (int i = 0; i < tmp_list.length; i++) {
@@ -742,12 +745,16 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 
 			listView.invalidateViews();
 		}
+		return itemIds.length;
     	
     }
 	private void reloadDataSet() {
-
+		emptyView.setText("Loading...");
 		if (getItemType == TYPE_SAVED) {
-			getListSaved();
+			int itemCount = getListSaved();
+			if (itemCount == 0) {
+				emptyView.setText("No item found");
+			}
 			return;
 		}
 		
@@ -765,6 +772,11 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 					dialog.dismiss();
 				}
 				body = body.replace("\n", "");
+				if (body.length() == 0) {
+					emptyView.setText("No item found");
+					mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+					return;
+				}
 				String[] strIds = body.split("\t");
 				itemIds = new int[strIds.length];
 				for (int i = 0; i < strIds.length; i++) {
