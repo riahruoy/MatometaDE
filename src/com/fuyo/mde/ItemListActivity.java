@@ -1,6 +1,7 @@
 package com.fuyo.mde;
 
 import java.io.ByteArrayInputStream;
+import java.security.PublicKey;
 import java.security.acl.LastOwnerException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,6 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +26,7 @@ import com.google.ads.AdView;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.R.integer;
 import android.app.ActionBar;
@@ -103,9 +107,11 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 	SpinnerAdapter mSpinnerAdapter;
 	private HtmlCacheManager cacheManager;
 	private String MY_AD_UNIT_ID;
+	private Handler mHandler;
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mHandler = new Handler();
         MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
         cacheManager = HtmlCacheManager.getInstance(this);
         Log.d("matome", "onCreate is called");
@@ -768,9 +774,9 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			ProgressDialog dialog;
 			@Override
 			public void onSuccess(String body) {
-				if (dialog.isShowing()) {
-					dialog.dismiss();
-				}
+//				if (dialog.isShowing()) {
+//					dialog.dismiss();
+//				}
 				body = body.replace("\n", "");
 				if (body.length() == 0) {
 					emptyView.setText("No item found");
@@ -790,7 +796,6 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			
 			@Override
 			public void onPreExecute() {
-
 				listView.setEnabled(false);
 				synchronized (ListData.lock) {
 					data.clear();//order is important
@@ -798,10 +803,10 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 					adAdapter.notifyDataSetChanged();
 					listView.invalidateViews();
 				}
-				dialog = new ProgressDialog(ItemListActivity.this);
-				dialog.setMessage("Loading...");
-				dialog.setCancelable(false);
-				dialog.show();
+//				dialog = new ProgressDialog(ItemListActivity.this);
+//				dialog.setMessage("Loading...");
+//				dialog.setCancelable(false);
+//				dialog.show();
 			}
 			
 			@Override
