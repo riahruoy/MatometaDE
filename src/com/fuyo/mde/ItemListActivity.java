@@ -160,6 +160,8 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.action_list, android.R.layout.simple_spinner_dropdown_item);
         bar.setListNavigationCallbacks(mSpinnerAdapter, this);
+        int tabPosition = sharedPref.getInt("tab_position", 0);
+        bar.setSelectedNavigationItem(tabPosition);
         
         listView.addFooterView(mFooter, null, false);
         adapter = new ItemAdapter();
@@ -838,6 +840,9 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			getItemType = TYPE_READ;
 			break;
 		}
+		Editor e = sharedPref.edit();
+		e.putInt("tab_position", position);
+		e.commit();
 		reloadDataSet();
 		return true;
 	}
