@@ -32,6 +32,7 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.GestureDetector.OnDoubleTapListener;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -41,6 +42,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.AbsListView.OnScrollListener;
@@ -100,6 +102,8 @@ public class WebActivity extends Activity {
 //        	webView.getSettings().setBuiltInZoomControls(true);
         	webView.getSettings().setUseWideViewPort(true);
         	webView.setVerticalScrollbarOverlay(true);
+        	webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+
 //        	webView.setInitialScale(100);
 
 
@@ -199,6 +203,34 @@ public class WebActivity extends Activity {
     	public MyWebView(Context context) {
     		super(context);
     		 gd = new GestureDetector(context, onGestureListener);
+    		 gd.setOnDoubleTapListener(new OnDoubleTapListener() {
+				
+				@Override
+				public boolean onSingleTapConfirmed(MotionEvent e) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public boolean onDoubleTapEvent(MotionEvent e) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public boolean onDoubleTap(MotionEvent e) {
+					LayoutAlgorithm algorithm = webView.getSettings().getLayoutAlgorithm();
+					if (algorithm == LayoutAlgorithm.SINGLE_COLUMN) {
+						webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.NORMAL);
+						Toast.makeText(WebActivity.this, "横スクロールを有効にしました", Toast.LENGTH_SHORT).show();
+					} else {
+						webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+						Toast.makeText(WebActivity.this, "横スクロールを無効にしました", Toast.LENGTH_SHORT).show();
+					}
+
+					return true;
+				}
+			});
     	}
     	public MyWebView(Context context, AttributeSet atters) {
     		super(context, atters);
