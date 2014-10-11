@@ -23,6 +23,8 @@ import com.google.ads.AdRequest.ErrorCode;
 import com.google.ads.AdSize;
 import com.google.ads.AdView;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -813,8 +815,12 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			
 			@Override
 			public void onFailure() {
-				if (dialog.isShowing()) {
-					dialog.dismiss();
+				ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo info = cm.getActiveNetworkInfo();
+				if (info == null || !info.isConnected()) {
+					emptyView.setText("You are offline");
+				} else {
+					emptyView.setText("Server is currently offline");
 				}
 			}
 		});
