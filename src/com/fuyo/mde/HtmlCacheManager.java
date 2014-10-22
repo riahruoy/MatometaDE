@@ -175,6 +175,10 @@ public class HtmlCacheManager {
     	
     	BasicPageManager pageManager_tmp = lightCacheManager;
     	NetworkInfo info = cm.getActiveNetworkInfo();
+    	if (info == null) {
+    		//no network is active
+    		return;
+    	}
     	if (info.getType() == ConnectivityManager.TYPE_WIFI
     			|| !sharedPref.getBoolean("pref_checkbox_prefetch_light_mode", true)) {
     		pageManager_tmp = fullCacheManager;

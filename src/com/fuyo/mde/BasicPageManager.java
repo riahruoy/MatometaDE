@@ -148,6 +148,7 @@ public abstract class BasicPageManager {
     public void deleteCacheOneWeekAgo() {
     	final long ttl = 1000 * 60 * 60 * 24 * 3;
     	File cacheDir = new File(baseDir);
+    	if (!cacheDir.exists()) return;
     	for (File file : cacheDir.listFiles()) {
     		long now = System.currentTimeMillis();
     		if (file.lastModified() + ttl < now) {
@@ -158,6 +159,7 @@ public abstract class BasicPageManager {
     }
     public void deleteAllCache() {
     	File cacheDir = new File(baseDir);
+    	if (!cacheDir.exists()) return;
     	for (File file : cacheDir.listFiles()) {
     		deleteCache(Integer.valueOf(file.getName()));
     	}
