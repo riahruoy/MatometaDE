@@ -40,17 +40,20 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.HorizontalScrollView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 public class WebActivity extends Activity {
-	private MyWebView webView;
+	private WebView webView;
 	private SharedPreferences sharedPref;
 	private TimeMeasure time;
 	private String linkUrl;
@@ -67,8 +70,46 @@ public class WebActivity extends Activity {
 	private HtmlCacheManager cacheManager;
 	private int[] followingItemIds = new int[]{};
 	
-	
-    @Override
+	private final SimpleOnGestureListener onGestureListener = new SimpleOnGestureListener() {
+		
+		@Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {
+            float deltax,deltay,velo;
+	//            int pref_browser_gesturevelo = 200;
+            deltax = e2.getRawX()-e1.getRawX();
+            deltay = Math.abs(e1.getRawY()-e2.getRawY());
+            velo = Math.abs(velocityX);
+	 
+            //pref_browser_gesturevelo is how fast finger moves.
+            //pref_browser_gesturevelo set to 350 as default in my app
+	            
+            if (deltax > THRESHOLD_X && deltay / deltax < Math.tan(Math.toRadians(THRESHOLD_ANGLE))) {
+               	finish();
+               	return true;
+            }
+            progress.setProgress(0);
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+			// This is NOT the distance between e1 and e2.
+			float moveX = e2.getRawX() - e1.getRawX();
+			float absMoveY = Math.abs(e2.getRawY() - e1.getRawY());
+			if (moveX < 0) {
+				progress.setProgress(0);
+				return false;
+			}
+			int score = 0;
+			score = Math.min((int)Math.floor(moveX / THRESHOLD_X * 50), 50);
+			float angle = absMoveY / moveX;
+			score += Math.min((int)Math.floor(Math.tan(Math.toRadians(THRESHOLD_ANGLE)) / angle * 50), 50);
+			progress.setProgress(score);
+			return false;
+		}
+	};
+	private GestureDetector mGestureDetector;
+
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -95,9 +136,8 @@ public class WebActivity extends Activity {
     		setTitle(title);
     		setContentView(R.layout.activity_web);
             LinearLayout layout = (LinearLayout)findViewById(R.id.WebLinearLayout);
-
             
-            webView = new MyWebView(this);
+            webView = new WebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
 //        	webView.getSettings().setBuiltInZoomControls(true);
         	webView.getSettings().setUseWideViewPort(true);
@@ -106,12 +146,15 @@ public class WebActivity extends Activity {
 
 //        	webView.setInitialScale(100);
 
-
-
+//        	webView.setScrollContainer(false);
+        	mGestureDetector = new GestureDetector(this, onGestureListener);
+        	
         	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
-        	layout.addView(webView, param);
+        	ObservableHorizontalScrollView scrollView = new ObservableHorizontalScrollView(this);
+        	scrollView.addView(webView, param);
+        	layout.addView(scrollView, param);
         	webView.loadUrl(cacheManager.getArticlePath(articleId));
         	
 
@@ -144,6 +187,11 @@ public class WebActivity extends Activity {
 
     }
     
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		super.dispatchTouchEvent(ev);
+		return mGestureDetector.onTouchEvent(ev);
+	}
 	@Override
 	public void onDestroy() {
 		if (adView != null) {
@@ -198,90 +246,30 @@ public class WebActivity extends Activity {
 
     }
     
-    public class MyWebView extends WebView {
-    	GestureDetector gd;
-    	public MyWebView(Context context) {
-    		super(context);
-    		 gd = new GestureDetector(context, onGestureListener);
-    		 gd.setOnDoubleTapListener(new OnDoubleTapListener() {
-				
-				@Override
-				public boolean onSingleTapConfirmed(MotionEvent e) {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				
-				@Override
-				public boolean onDoubleTapEvent(MotionEvent e) {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				
-				@Override
-				public boolean onDoubleTap(MotionEvent e) {
-					LayoutAlgorithm algorithm = webView.getSettings().getLayoutAlgorithm();
-					if (algorithm == LayoutAlgorithm.SINGLE_COLUMN) {
-						webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.NORMAL);
-						Toast.makeText(WebActivity.this, "横スクロールを有効にしました", Toast.LENGTH_SHORT).show();
-					} else {
-						webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
-						Toast.makeText(WebActivity.this, "横スクロールを無効にしました", Toast.LENGTH_SHORT).show();
-					}
+    public class ObservableHorizontalScrollView extends ScrollView {
+    	    
 
-					return true;
-				}
-			});
+    	public ObservableHorizontalScrollView(Context context) {
+    		super(context);
     	}
-    	public MyWebView(Context context, AttributeSet atters) {
-    		super(context, atters);
+    	    
+    	public ObservableHorizontalScrollView(Context context, AttributeSet attrs) {
+    		super(context, attrs);
     	}
+    	    
+    	public ObservableHorizontalScrollView(Context context, AttributeSet attrs, int defs) {
+    		super(context, attrs, defs);
+    	}
+    	    
+
     	@Override
-    	public void onScrollChanged(final int l, final int t, final int oldl, final int oldt) {
-			double r = (double)(webView.getScrollY() + webView.getHeight()) / (double)(webView.getContentHeight() * webView.getScale());
-//			double r = (double)(t) / (double)(webView.getContentHeight());
-			maxScroll = Math.max(r, maxScroll);
+    	protected void onScrollChanged(int x, int y, int oldx, int oldy) {
+    		super.onScrollChanged(x, y, oldx, oldy);
+    		double r = (double)(getScrollY() + getHeight()) / getChildAt(0).getHeight();
+    		maxScroll = Math.max(r, maxScroll);
+
     	}
-    	@Override
-        public boolean onTouchEvent(MotionEvent event) {
-            return (gd.onTouchEvent(event) || super.onTouchEvent(event));
-        }
-    	private final SimpleOnGestureListener onGestureListener = new SimpleOnGestureListener() {
-    		@Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,float velocityY) {
-                float deltax,deltay,velo;
-//                int pref_browser_gesturevelo = 200;
-                deltax = e2.getRawX()-e1.getRawX();
-                deltay = Math.abs(e1.getRawY()-e2.getRawY());
-                velo = Math.abs(velocityX);
-     
-                //pref_browser_gesturevelo is how fast finger moves.
-                //pref_browser_gesturevelo set to 350 as default in my app
-                
-                if (deltax > THRESHOLD_X && deltay / deltax < Math.tan(Math.toRadians(THRESHOLD_ANGLE))) {
-                   	finish();
-                   	return true;
-                }
-                progress.setProgress(0);
-                return super.onFling(e1, e2, velocityX, velocityY);
-            }
-    		@Override
-    		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-    			// This is NOT the distance between e1 and e2.
-    			float moveX = e2.getRawX() - e1.getRawX();
-    			float absMoveY = Math.abs(e2.getRawY() - e1.getRawY());
-    			if (moveX < 0) {
-    				progress.setProgress(0);
-    				return false;
-    			}
-    			int score = 0;
-    			score = Math.min((int)Math.floor(moveX / THRESHOLD_X * 50), 50);
-    			float angle = absMoveY / moveX;
-    			score += Math.min((int)Math.floor(Math.tan(Math.toRadians(THRESHOLD_ANGLE)) / angle * 50), 50);
-    			progress.setProgress(score);
-    			return false;
-    		}
-    	};
-    }
+    };   
     
     private class MyWebViewClient extends WebViewClient {
     	@Override
