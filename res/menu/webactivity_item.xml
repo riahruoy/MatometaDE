@@ -1,5 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <item android:id="@+id/action_reflesh_web" 
+        android:title="@string/reflesh" />
     <item
         android:id="@+id/action_toWeb"
         android:title="@string/action_toWeb"/>

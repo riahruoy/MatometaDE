@@ -152,8 +152,13 @@ public class WebActivity extends Activity {
         	LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
         			LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         	param.weight = 1;
+        	LinearLayout.LayoutParams param2 = new LinearLayout.LayoutParams(
+        			LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
+        	param2.weight = 1;
+        	param2.height = 100;
         	ObservableHorizontalScrollView scrollView = new ObservableHorizontalScrollView(this);
-        	scrollView.addView(webView, param);
+
+        	scrollView.addView(webView, param2);
         	layout.addView(scrollView, param);
         	webView.loadUrl(cacheManager.getArticlePath(articleId));
         	
@@ -309,7 +314,11 @@ public class WebActivity extends Activity {
     		Intent i = new Intent(Intent.ACTION_VIEW,uri);
     		startActivity(i);
     		return true;
-    	}
+    	case R.id.action_reflesh_web:
+    		webView.reload();
+    		return true;
+        }
+    		
     	return false;
     }
 }
