@@ -139,7 +139,7 @@ public class WebActivity extends Activity {
             
             webView = new WebView(this);
         	webView.setWebViewClient(new MyWebViewClient());
-//        	webView.getSettings().setBuiltInZoomControls(true);
+        	webView.getSettings().setBuiltInZoomControls(true);
         	webView.getSettings().setUseWideViewPort(true);
         	webView.setVerticalScrollbarOverlay(true);
         	webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
