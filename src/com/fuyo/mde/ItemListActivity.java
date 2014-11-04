@@ -77,6 +77,8 @@ import android.widget.RelativeLayout;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.fuyo.mde.HtmlCacheManager.OnUpdateListener;
+
 class ListData { static Object lock = new Object();}
 
 public class ItemListActivity extends Activity implements ActionBar.OnNavigationListener{
@@ -302,9 +304,10 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem,
 					int visibleItemCount, int totalItemCount) {
-				Log.d("scroll", "onScroll called : totalItem " + totalItemCount + ", itemIds.length " + itemIds.length);
 				if (itemIds.length > data.size() && totalItemCount < firstVisibleItem + visibleItemCount + PREFETCH_COUNT) {
-					addtitionalReading();
+					addtitionalReading(firstVisibleItem, visibleItemCount);
+                } else if(itemIds.length > 0) {
+                    startBackgroundPrefetch(adAdapter.toBasePosition(firstVisibleItem));
 				}
 			}
 		};
@@ -351,9 +354,10 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 	public void onResume() {
 		super.onResume();
 		listView.invalidateViews();
+        adAdapter.notifyDataSetChanged();
 	}
     
-     private void addtitionalReading() {
+     private void addtitionalReading(final int firstVisibleItem, final int visibleCount) {
     	if (mGetItemTask != null && mGetItemTask.getStatus() == AsyncTask.Status.RUNNING) {
     		return;
 //    		mGetItemTask.cancel(true);
@@ -420,6 +424,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 						if (data.size() >= itemIds.length) {
 							mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
 						}
+                        startBackgroundPrefetch(firstVisibleItem);
 					}
 				}
     		};
@@ -448,20 +453,45 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 				}
 				if (data.size() >= itemIds.length) {
 					mFooter.findViewById(R.id.spinner).setVisibility(View.GONE);
+                    startBackgroundPrefetch(firstVisibleItem);
 				}
 			}
 			
 			@Override
 			public void onPreExecute() {
-				
+                cacheManager.stopBackgroundPrefetch();
 			}
-			
+
 			@Override
 			public void onFailure() {
 
 			}
 		});
     	mGetItemTask.execute("");
+    }
+
+    private void startBackgroundPrefetch(final int firstVisibleItem) {
+        final int FIRST_FETCH = 10;
+        int[] itemIdsPrefetch = new int[Math.min(itemIds.length - firstVisibleItem, FIRST_FETCH)];
+        for (int i = 0; i + firstVisibleItem < itemIds.length && i < FIRST_FETCH; i++) {
+            itemIdsPrefetch[i] = itemIds[i + firstVisibleItem];
+        }
+        Log.d("prefetch", "start prefetch" + firstVisibleItem);
+        cacheManager.startBackgroundPrefetch(itemIdsPrefetch, new OnUpdateListener() {
+            @Override
+            public void onUpdate(int itemId) {
+                runOnUiThread(new Runnable(){
+
+                    @Override
+                    public void run() {
+                        adAdapter.notifyDataSetChanged();
+                        listView.invalidateViews();
+                    }
+
+                });
+            }
+        });
+
     }
 
     
@@ -759,6 +789,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     	
     }
 	private void reloadDataSet() {
+        cacheManager.stopBackgroundPrefetch();
 		emptyView.setText("Loading...");
 		if (getItemType == TYPE_SAVED) {
 			int itemCount = getListSaved();
