@@ -114,6 +114,7 @@ public class WebActivity extends Activity {
         super.onCreate(savedInstanceState);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         cacheManager = HtmlCacheManager.getInstance(this);
+        cacheManager.stopBackgroundPrefetch();
         MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
 
         maxScroll = 0;

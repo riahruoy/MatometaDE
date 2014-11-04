@@ -167,6 +167,13 @@ public class HtmlCacheManager {
     	return detailCacheManager.isCached(itemId);
     }
     public void startBackgroundPrefetch(final int[] itemIds) {
+    	startBackgroundPrefetch(itemIds, new OnUpdateListener() {
+			@Override
+			public void onUpdate(int itemId) {
+			}
+		});
+    }
+    public void startBackgroundPrefetch(final int[] itemIds, final OnUpdateListener listener) {
     	if (!sharedPref.getBoolean("pref_checkbox_prefetch", true)) return;
     	if (itemIds.length == 0) return;
     	if (bgPrefetchTask2 != null) return;
@@ -197,6 +204,7 @@ public class HtmlCacheManager {
     					if (pageManager.isCached(itemIds[i])) continue;
     					pageManager.downloadAndSaveArticle(itemIds[i]);
     					Log.d("prefetch", "prefetch complete for itemId = " + itemIds[i]);
+    					listener.onUpdate(itemIds[i]);
     					
     					if (bgPrefetchStopFlag) {
     						Log.d("prefetch", "prefetch: is cancelled with flag");
@@ -242,5 +250,7 @@ public class HtmlCacheManager {
     	fullCacheManager.deleteAllCache();
     	detailCacheManager.deleteAllCache();
     }
-    
+    public interface OnUpdateListener {
+    	void onUpdate(int itemId);
+    }
 }
