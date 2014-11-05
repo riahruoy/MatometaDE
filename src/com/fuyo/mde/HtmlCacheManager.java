@@ -184,6 +184,10 @@ public class HtmlCacheManager {
     		//no network is active
     		return;
     	}
+        if (context.getCacheDir().getFreeSpace() <= context.getCacheDir().getTotalSpace() * 0.1) {
+            Log.d("error", "storage is full therefore downloading is stopped");
+            return;
+        }
     	if (info.getType() == ConnectivityManager.TYPE_WIFI
     			|| !sharedPref.getBoolean("pref_checkbox_prefetch_light_mode", true)) {
     		pageManager_tmp = fullCacheManager;
