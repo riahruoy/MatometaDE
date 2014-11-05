@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -144,6 +146,43 @@ public abstract class BasicPageManager {
    			file.delete();
     	}
     	cacheDir.delete();
+    }
+
+    public void deleteCacheUntilMaximumFileNumber(final int num) {
+        File cacheDir = new File(baseDir);
+        if (!cacheDir.exists()) return;
+        if (cacheDir.listFiles().length <= num) return;
+        TreeMap<Long, File> map = new TreeMap<Long, File>();
+        for (File file: cacheDir.listFiles()) {
+            map.put(file.lastModified(), file);
+        }
+        int deleteNum = map.size() - num;
+        int counter = 0;
+        for (File file : map.values()) {
+            int itemId = Integer.valueOf(file.getName());
+            deleteCache(itemId);
+            counter++;
+            if (counter >= deleteNum) return;
+
+        }
+
+    }
+
+    public void deleteCacheUntilQuota(long quota) {
+        File cacheDir = new File(baseDir);
+        if (!cacheDir.exists()) return;
+        if (cacheDir.getFreeSpace() >= quota) return;
+        TreeMap<Long, File> map = new TreeMap<Long, File>();
+        for (File file: cacheDir.listFiles()) {
+            map.put(file.lastModified(), file);
+        }
+        for (File file : map.values()) {
+            int itemId = Integer.valueOf(file.getName());
+            deleteCache(itemId);
+            if (cacheDir.getFreeSpace() >= quota) {
+                return;
+            }
+        }
     }
     public void deleteCacheOneWeekAgo() {
     	final long ttl = 1000 * 60 * 60 * 24 * 3;

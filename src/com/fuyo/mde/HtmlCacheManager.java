@@ -177,6 +177,15 @@ public class HtmlCacheManager {
     	if (bgPrefetchTask2 != null) return;
     	lightCacheManager.deleteCacheOneWeekAgo();
     	fullCacheManager.deleteCacheOneWeekAgo();
+
+        final long QUOTA = 10 * 1024 * 1024; //10 MB
+        lightCacheManager.deleteCacheUntilQuota(QUOTA);
+        fullCacheManager.deleteCacheUntilQuota(QUOTA);
+
+        final int MAX_CACHE_COUNT = 2000;
+        lightCacheManager.deleteCacheUntilMaximumFileNumber(MAX_CACHE_COUNT);
+        fullCacheManager.deleteCacheUntilMaximumFileNumber(MAX_CACHE_COUNT);
+
     	
     	BasicPageManager pageManager_tmp = lightCacheManager;
     	NetworkInfo info = cm.getActiveNetworkInfo();
@@ -184,7 +193,7 @@ public class HtmlCacheManager {
     		//no network is active
     		return;
     	}
-        if (context.getCacheDir().getFreeSpace() <= context.getCacheDir().getTotalSpace() * 0.1) {
+        if (context.getCacheDir().getFreeSpace() <= QUOTA) {
             Log.d("error", "storage is full therefore downloading is stopped");
             return;
         }
