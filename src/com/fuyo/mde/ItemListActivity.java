@@ -118,7 +118,6 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
         mHandler = new Handler();
         MY_AD_UNIT_ID = getResources().getString(R.string.admob_id_webview);
         cacheManager = HtmlCacheManager.getInstance(this);
-        Log.d("matome", "onCreate is called");
         CustomUncaughtExceptionHandler customUncaughtExceptionHandler = new CustomUncaughtExceptionHandler(
                 getApplicationContext());
         Thread.setDefaultUncaughtExceptionHandler(customUncaughtExceptionHandler);
@@ -447,7 +446,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 	
 						data.add(item);
 					}
-		    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
+//		    		Log.d("loading", "loading finished : " + offset + " -> " + data.size());
 					adAdapter.notifyDataSetChanged();
 					listView.invalidateViews();
 				}
@@ -512,7 +511,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     		Item item = new Item();
     		String[] column = line.split("\t");
     		item.id = Integer.valueOf(column[0]);
-    		Log.d("test", "linecount : " + column.length);
+//    		Log.d("test", "linecount : " + column.length);
     		item.read = (Integer.valueOf(column[1]) > 0);
     		item.title = Html.fromHtml(column[2]).toString();
     		item.link = column[3];
@@ -522,7 +521,7 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
     		item.content = "";
     		item.icon = null;
     		if (column.length == 8) {
-    			Log.d("column", line);
+//    			Log.d("column", line);
     		}
     		if (column[7].length() > 1) {
     			item.icon = Base64.decode(column[7], Base64.DEFAULT);
@@ -862,7 +861,6 @@ public class ItemListActivity extends Activity implements ActionBar.OnNavigation
 
 	@Override
 	public boolean onNavigationItemSelected(int position, long itemId) {
-        Log.d("matome", "onNavigationItemSelected is called");
 		switch (position) {
 		case 0:
 			getItemType = TYPE_ALL;

@@ -94,7 +94,7 @@ public class ItemIdsDownloadAsyncTask extends AsyncTask<String, Integer, Integer
 					    reader.close();
 					}
 						
-					Log.d("upload", body);
+//					Log.d("upload", body);
 					resultBody = body;
 					resultStatus = 1;
 					return body;

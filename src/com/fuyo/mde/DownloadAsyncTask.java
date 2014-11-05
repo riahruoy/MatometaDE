@@ -115,7 +115,7 @@ public class DownloadAsyncTask extends AsyncTask<String, Integer, Integer> {
 					    reader.close();
 					}
 						
-					Log.d("upload", body);
+//					Log.d("upload", body);
 					return body;
 				default:
 					return "";

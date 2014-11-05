@@ -43,7 +43,7 @@ public abstract class BasicPageManager {
 		HttpParams httpParams = new BasicHttpParams();
 		httpParams.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, Integer.valueOf(1000));
 		httpParams.setParameter(CoreConnectionPNames.SO_TIMEOUT, Integer.valueOf(30000));
-		httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Mozilla/5.0 (Linux; U; Android 4.0.1; ja-jp; Galaxy Nexus Build/ITL41D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30");
+//		httpParams.setParameter(CoreProtocolPNames.USER_AGENT, "Mozilla/5.0 (Linux; U; Android 4.0.1; ja-jp; Galaxy Nexus Build/ITL41D) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30");
 		HttpClient httpClient = new DefaultHttpClient(httpParams);
 
 		HttpPost httpPost = new HttpPost(url);
@@ -76,7 +76,7 @@ public abstract class BasicPageManager {
 		String url = getZipDownloadPath(itemId);
 		byte[] zipData = download(url);
 		if (zipData == null) return;
-		Log.d("prefetch", "bgPrefetch failed for itemId=" + itemId + " " + url);
+		Log.d("prefetch", "bgPrefetch failed for itemId=" + itemId);
 		writeToCache(itemId, zipData);
 
     }
