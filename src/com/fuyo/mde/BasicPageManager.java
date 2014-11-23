@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -38,7 +39,8 @@ public abstract class BasicPageManager {
 			dir.mkdirs();
 		}
 	}
-	public static byte[] download(final String url) {
+	protected void downloadAndSaveArticle(final int itemId) {
+        String url = getZipDownloadPath(itemId);
 
 		HttpParams httpParams = new BasicHttpParams();
 		httpParams.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, Integer.valueOf(1000));
@@ -47,44 +49,39 @@ public abstract class BasicPageManager {
 		HttpClient httpClient = new DefaultHttpClient(httpParams);
 
 		HttpPost httpPost = new HttpPost(url);
-		ResponseHandler<byte[]> responseHandler = new ResponseHandler<byte[]>() {
+		ResponseHandler<InputStream> responseHandler = new ResponseHandler<InputStream>() {
 	
 			@Override
-			public byte[] handleResponse(HttpResponse response)
+			public InputStream handleResponse(HttpResponse response)
 					throws ClientProtocolException, IOException {
 				switch (response.getStatusLine().getStatusCode()) {
 				case HttpStatus.SC_OK:
-					return EntityUtils.toByteArray(response.getEntity());
+                    InputStream inputStream = response.getEntity().getContent();
+                    writeToCache(itemId, inputStream);
+					return null;
 				default:
 					return null;
 				}
 			}
 		};
 
-		byte[] result = null;
+
 		try {
-			result = httpClient.execute(httpPost, responseHandler);
+			httpClient.execute(httpPost, responseHandler);
+
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		httpClient.getConnectionManager().shutdown();
-		return result;
-	}
-	protected void downloadAndSaveArticle(final int itemId) {
-		String url = getZipDownloadPath(itemId);
-		byte[] zipData = download(url);
-		if (zipData == null) return;
-		Log.d("prefetch", "bgPrefetch failed for itemId=" + itemId);
-		writeToCache(itemId, zipData);
 
-    }
+	}
 	abstract protected String getZipDownloadPath(final int itemId);
 	protected String getLocalPath(final int itemId) {
 		return "file://" + baseDir + "/" + itemId + "/index.html";
 	}
-    private void writeToCache(final int itemId, final byte[] body) {
+    private void writeToCache(final int itemId, InputStream inputStream) {
 		String cacheDirPath = baseDir;
 		//TODO download picture with client, use picUrl newUrl table
     	ZipInputStream in = null;
@@ -92,7 +89,7 @@ public abstract class BasicPageManager {
     	FileOutputStream out = null;
     	try {
     		//http://www.jxpath.com/beginner/zipFile/decode.html
-    		in = new ZipInputStream(new ByteArrayInputStream(body));
+    		in = new ZipInputStream(inputStream);
     		while ((zipEntry = in.getNextEntry()) != null) {
     			File newFile = new File(cacheDirPath, zipEntry.getName());
     			if (zipEntry.isDirectory()) {
